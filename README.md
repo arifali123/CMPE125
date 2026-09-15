@@ -21,6 +21,17 @@ Make sure `vivado` is on your PATH. If needed, source your installation's
 
 Run simulation, synthesis, and programming from the Vivado UI.
 
+### Lab 3: seven-segment decoder
+
+```sh
+./lab open lab_3          # Gate-level decoder
+./lab open lab_3_direct   # Direct Verilog decoder (separate project)
+vivado -mode batch -source lab_3/scripts/verify.tcl
+```
+
+The [Lab 3 report](lab_3/notes/README.md) includes the truth table, simplified
+equations, design explanation, and verification/submission instructions.
+
 ## Save and sync
 
 Save your files in Vivado, then review and push your changes:
