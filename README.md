@@ -35,8 +35,8 @@ Close any other project first. Script paths follow the clone location automatica
 
 ## Move between computers
 
-The intended GitHub destination is private `arifali123/CMPE125`; publication is
-pending approval. Once published, authenticate with your GitHub account and clone:
+The GitHub repository is private: `arifali123/CMPE125`. Authenticate with your
+GitHub account and clone:
 
 ```sh
 git clone https://github.com/arifali123/CMPE125.git
