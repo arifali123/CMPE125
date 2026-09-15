@@ -24,13 +24,9 @@ Run simulation, synthesis, and programming from the Vivado UI.
 ### Lab 3: seven-segment decoder
 
 ```sh
-./lab open lab_3          # Both decoder implementations
+./lab open lab_3          # Seven-segment decoder
 vivado -mode batch -source lab_3/scripts/verify.tcl
 ```
-
-Both implementations are in the same project. In Design Sources, right-click
-`lab03_arif` or `lab03_arif_direct` and select **Set as Top** to synthesize it.
-The testbench checks both together.
 
 The [Lab 3 report](lab_3/notes/README.md) includes the truth table, simplified
 equations, design explanation, and verification/submission instructions.

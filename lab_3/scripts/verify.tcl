@@ -17,20 +17,19 @@ if {[get_value -radix dec /lab03_arif_tb/i] != 16} {
     error "Testbench stopped before completing all 16 inputs"
 }
 close_sim
-foreach decoder_top {lab03_arif lab03_arif_direct} {
-    set_property top $decoder_top [get_filesets sources_1]
-    set_property top $decoder_top [get_filesets sim_1]
-    launch_simulation
-    source [file join $scripts_dir force_inputs.tcl]
-    close_sim
-    synth_design -rtl -top $decoder_top -part xc7a35tcpg236-1
-    close_design
-    synth_design -top $decoder_top -part xc7a35tcpg236-1
-    if {[llength [get_cells -quiet -hier -filter {REF_NAME =~ LD*}]]} {
-        error "Unexpected latch in $decoder_top"
-    }
-    report_utilization -file [file join $output_dir ${decoder_top}_utilization.rpt]
-    write_checkpoint -force [file join $output_dir ${decoder_top}_synth.dcp]
-    close_design
+set decoder_top lab03_arif
+set_property top $decoder_top [get_filesets sources_1]
+set_property top $decoder_top [get_filesets sim_1]
+launch_simulation
+source [file join $scripts_dir force_inputs.tcl]
+close_sim
+synth_design -rtl -top $decoder_top -part xc7a35tcpg236-1
+close_design
+synth_design -top $decoder_top -part xc7a35tcpg236-1
+if {[llength [get_cells -quiet -hier -filter {REF_NAME =~ LD*}]]} {
+    error "Unexpected latch in $decoder_top"
 }
-puts "PASS: Lab 3 testbench, both add_force sweeps, elaboration, and synthesis completed."
+report_utilization -file [file join $output_dir ${decoder_top}_utilization.rpt]
+write_checkpoint -force [file join $output_dir ${decoder_top}_synth.dcp]
+close_design
+puts "PASS: Lab 3 testbench, add_force sweep, elaboration, and synthesis completed."

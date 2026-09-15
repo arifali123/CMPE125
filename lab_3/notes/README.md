@@ -4,7 +4,7 @@ Author: Arif Ali
 
 ## Objective and interface
 
-Implement and compare a structural gate-level decoder and a direct Verilog decoder.
+Implement a seven-segment decoder using Verilog gate primitives.
 `SW[3:0] = D3 D2 D1 D0`; `HEX0[6:0] = Sg Sf Se Sd Sc Sb Sa`.
 Outputs are active low: 0 illuminates a segment. B and D use lowercase b and d
 as shown in the handout. All 16 inputs are defined; there are no don't-care digits.
@@ -64,10 +64,7 @@ I chose a simplified sum-of-products implementation to reduce the number of gate
 while keeping each segment easy to trace back to its equation. Four shared NOT
 gates provide the complemented inputs. Each product term has a named AND gate,
 and each segment has an OR gate combining its terms. Verilog primitives accept
-all required fan-ins, so no extra gate trees are necessary. The direct implementation
-uses a complete combinational case statement with a blank-display default for
-unknown simulation inputs. Both implement the same binary truth table; synthesis
-can map them to different FPGA lookup-table structures.
+all required fan-ins, so no extra gate trees are necessary.
 
 ```text
                          for each segment s = a ... g
@@ -87,51 +84,44 @@ for the actual design view.
 From the repository root:
 
 ```sh
-./lab open lab_3          # One project containing both implementations
+./lab open lab_3          # Seven-segment decoder
 vivado -mode batch -source lab_3/scripts/verify.tcl
 ```
 
-Both implementations are in this one project. In Design Sources, right-click
-`lab03_arif` (gate-level) or `lab03_arif_direct` (direct Verilog) and choose
-**Set as Top** before synthesis. The simulation top `lab03_arif_tb` tests both
-together. Reopening with `./lab` selects the gate-level synthesis top by default.
+The synthesis top is `lab03_arif`; the simulation top is `lab03_arif_tb`.
 
 The project uses the existing repository's Artix-7 part `xc7a35tcpg236-1`.
 The handout requires decoder synthesis and simulation, so this project exposes
-only SW and HEX0 and have no board pin constraints. Physical display operation
+only SW and HEX0 and has no board pin constraints. Physical display operation
 also requires board pin assignments and digit-enable/decimal-point signals.
 
 ### Testbench verification
 
-The testbench instantiates both decoders, drives all 16 values for 100 ns each,
-and checks both against independently listed illuminated segments using case
+The testbench instantiates the decoder, drives all 16 values for 100 ns each,
+and checks its outputs against independently listed illuminated segments using case
 inequality so X/Z outputs fail. Every valid hexadecimal state is checked.
 Run Behavioral Simulation and Zoom Fit for the full 1600 ns waveform.
 
 ### add_force verification
 
-The batch script also runs each decoder as the simulation top and sources
+The batch script also runs the decoder as the simulation top and sources
 `../scripts/force_inputs.tcl`. This uses `add_force` for every digit, waits 100 ns,
 and compares HEX0 to the truth table. It first runs 1 ns to initialize procedural
 blocks before forcing inputs, producing a 1601 ns sweep. For manual use, set the simulation top to
-`lab03_arif` or `lab03_arif_direct`, start Behavioral Simulation, and source
+`lab03_arif`, start Behavioral Simulation, and source
 `lab_3/scripts/force_inputs.tcl` using its absolute path in the Tcl Console.
 Restore `lab03_arif_tb` as simulation top afterward.
 
 ### Synthesis and schematics
 
-The verification script elaborates and synthesizes both implementations, checks
+The verification script elaborates and synthesizes the decoder, checks
 for latches, and saves checkpoints and utilization reports under `lab_3/build/verification`.
-For each selected synthesis top, select RTL Analysis → Open Elaborated Design → Schematic.
+Select RTL Analysis → Open Elaborated Design → Schematic.
 Run Synthesis and inspect the synthesized schematic as well.
 
 ## Results and submission evidence
 
-Both implementations passed all 16 testbench cases and all 16 standalone
-`add_force` checks each in Vivado 2025.2. Both elaborated and synthesized
-successfully without latches. Both map to seven LUT4 primitives (four slice LUTs
-after LUT combining), with zero registers. See `verification.txt` for the recorded
-execution result and resource comparison. Generated Vivado logs,
+See `verification.txt` for the decoder’s simulation and synthesis results. Generated Vivado logs,
 waveform databases, checkpoints, and utilization reports stay in ignored `build/`.
 
 Before submitting on Canvas, capture actual XSim waveform screenshots and Vivado
@@ -141,6 +131,5 @@ guideline (not provided with the handout). Hardware demonstration is not claimed
 Attach these source files to the report:
 
 - `../rtl/lab03_arif.v` — structural gate-level implementation.
-- `../rtl/lab03_arif_direct.v` — direct implementation.
 - `../sim/lab03_arif_tb.v` — exhaustive self-checking testbench.
 - `../scripts/force_inputs.tcl` — all 16 add_force checks.

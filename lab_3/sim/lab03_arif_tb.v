@@ -1,12 +1,11 @@
 `timescale 1ns / 1ps
 module lab03_arif_tb;
     reg [3:0] SW;
-    wire [6:0] gate_hex, direct_hex;
+    wire [6:0] HEX0;
     reg [6:0] lit_segments [0:15];
     reg [6:0] expected;
     integer i;
-    lab03_arif gate_dut (.SW(SW), .HEX0(gate_hex));
-    lab03_arif_direct direct_dut (.SW(SW), .HEX0(direct_hex));
+    lab03_arif dut (.SW(SW), .HEX0(HEX0));
     initial begin
         // Independent oracle: 1 means a segment is illuminated, g through a.
         lit_segments[0] = 7'b0111111; // 0: abcdef
@@ -29,13 +28,13 @@ module lab03_arif_tb;
             SW = i[3:0];
             expected = ~lit_segments[i];
             #1;
-            if (gate_hex !== expected || direct_hex !== expected)
-                $fatal(1, "FAIL SW=%h expected=%h gate=%h direct=%h",
-                       SW, expected, gate_hex, direct_hex);
-            $display("PASS SW=%h HEX0=%h (gate and direct)", SW, expected);
+            if (HEX0 !== expected)
+                $fatal(1, "FAIL SW=%h expected=%h HEX0=%h",
+                       SW, expected, HEX0);
+            $display("PASS SW=%h HEX0=%h", SW, expected);
             #99;
         end
-        $display("PASS: All 16 states match the truth table in both implementations.");
+        $display("PASS: All 16 states match the truth table.");
         $finish;
     end
 endmodule
