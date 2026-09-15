@@ -21,6 +21,8 @@ Make sure `vivado` is on your PATH. If needed, source your installation's
 
 Run simulation, synthesis, and programming from the Vivado UI.
 
+Board pin reference: [Digilent Basys 3 Master XDC](https://github.com/Digilent/digilent-xdc/blob/master/Basys-3-Master.xdc).
+
 | Lab | Circuit module | Testbench |
 |---|---|---|
 | 1 | `light_controller` | `light_controller_tb` |
