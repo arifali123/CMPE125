@@ -1,7 +1,16 @@
 `timescale 1ns / 1ps
 
 // Active-low output order: HEX0[6:0] = {g,f,e,d,c,b,a}.
-module seven_segment_decoder (input [3:0] SW, output [6:0] HEX0);
+module seven_segment_decoder (
+    input [3:0] SW,
+    output [6:0] HEX0,
+    output [3:0] AN,
+    output DP
+);
+    // Basys 3: enable only the rightmost digit and turn off its decimal point.
+    assign AN = 4'b1110;
+    assign DP = 1'b1;
+
     wire nD3, nD2, nD1, nD0;
     not inv_D0(nD0, SW[0]);
     not inv_D1(nD1, SW[1]);

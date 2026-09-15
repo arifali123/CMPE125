@@ -2,10 +2,12 @@
 module seven_segment_decoder_tb;
     reg [3:0] SW;
     wire [6:0] HEX0;
+    wire [3:0] AN;
+    wire DP;
     reg [6:0] lit_segments [0:15];
     reg [6:0] expected;
     integer i;
-    seven_segment_decoder dut (.SW(SW), .HEX0(HEX0));
+    seven_segment_decoder dut (.SW(SW), .HEX0(HEX0), .AN(AN), .DP(DP));
     initial begin
         // Independent oracle: 1 means a segment is illuminated, g through a.
         lit_segments[0] = 7'b0111111; // 0: abcdef
@@ -28,6 +30,8 @@ module seven_segment_decoder_tb;
             SW = i[3:0];
             expected = ~lit_segments[i];
             #1;
+            if (AN !== 4'b1110 || DP !== 1'b1)
+                $fatal(1, "FAIL: digit enable or decimal point output");
             if (HEX0 !== expected)
                 $fatal(1, "FAIL SW=%h expected=%h HEX0=%h",
                        SW, expected, HEX0);

@@ -79,57 +79,40 @@ The equations label every AND input; the structural source labels every gate and
 intermediate wire. This is a logic sketch; inspect Vivado's elaborated schematic
 for the actual design view.
 
-## Reproduce in Vivado
+## Open and demonstrate on the Basys 3
 
-From the repository root:
+Use `./lab open lab_3`, just like Labs 1 and 2. The single `scripts/project.tcl`
+sets up the project for that launcher; no extra verification scripts are needed.
 
-```sh
-./lab open lab_3          # Seven-segment decoder
-vivado -mode batch -source lab_3/scripts/verify.tcl
-```
+To create the project manually on a lab computer:
 
-The synthesis top is `seven_segment_decoder`; the simulation top is `seven_segment_decoder_tb`.
+1. Create a Vivado RTL project for Basys 3 / `xc7a35tcpg236-1`.
+2. Add `rtl/seven_segment_decoder.v` as a design source.
+3. Add `sim/seven_segment_decoder_tb.v` as a simulation source.
+4. Add `constraints/basys3.xdc` as a constraints file.
+5. Set `seven_segment_decoder` as design top and `seven_segment_decoder_tb`
+   as simulation top.
+6. Run Behavioral Simulation for 1600 ns. The testbench checks all 16 digits,
+   the digit enables, and the decimal point; it stops on a mismatch.
+7. Select Generate Bitstream, allowing synthesis and implementation to run.
+8. Connect and power the Basys 3 through its USB programming port. In Hardware
+   Manager, select Open Target → Auto Connect → Program Device and choose the
+   generated `seven_segment_decoder.bit`.
+9. Toggle SW0–SW3 through 0000–1111. The rightmost digit should display 0–F;
+   the other digits and decimal point stay off.
 
-The project uses the existing repository's Artix-7 part `xc7a35tcpg236-1`.
-The handout requires decoder synthesis and simulation, so this project exposes
-only SW and HEX0 and has no board pin constraints. Physical display operation
-also requires board pin assignments and digit-enable/decimal-point signals.
+`AN = 1110` enables the rightmost digit; `DP = 1` turns the decimal point off.
+These fixed board outputs are included in the same decoder module. No clock is
+needed for a single continuously enabled digit. Pins follow the
+[Digilent Basys 3 master constraints](https://github.com/Digilent/digilent-xdc/blob/master/Basys-3-Master.xdc).
 
-### Testbench verification
+Programming the FPGA with the `.bit` file is sufficient for a powered lab demo;
+the configuration is lost when power is removed.
 
-The testbench instantiates the decoder, drives all 16 values for 100 ns each,
-and checks its outputs against independently listed illuminated segments using case
-inequality so X/Z outputs fail. Every valid hexadecimal state is checked.
-Run Behavioral Simulation and Zoom Fit for the full 1600 ns waveform.
+## Notes and evidence
 
-### add_force verification
-
-The batch script also runs the decoder as the simulation top and sources
-`../scripts/force_inputs.tcl`. This uses `add_force` for every digit, waits 100 ns,
-and compares HEX0 to the truth table. It first runs 1 ns to initialize procedural
-blocks before forcing inputs, producing a 1601 ns sweep. For manual use, set the simulation top to
-`seven_segment_decoder`, start Behavioral Simulation, and source
-`lab_3/scripts/force_inputs.tcl` using its absolute path in the Tcl Console.
-Restore `seven_segment_decoder_tb` as simulation top afterward.
-
-### Synthesis and schematics
-
-The verification script elaborates and synthesizes the decoder, checks
-for latches, and saves checkpoints and utilization reports under `lab_3/build/verification`.
-Select RTL Analysis → Open Elaborated Design → Schematic.
-Run Synthesis and inspect the synthesized schematic as well.
-
-## Results and submission evidence
-
-See `verification.txt` for the decoder’s simulation and synthesis results. Generated Vivado logs,
-waveform databases, checkpoints, and utilization reports stay in ignored `build/`.
-
-Before submitting on Canvas, capture actual XSim waveform screenshots and Vivado
-schematic screenshots, and format this report according to the Canvas report
-guideline (not provided with the handout). Hardware demonstration is not claimed.
-
-Attach these source files to the report:
-
-- `../rtl/seven_segment_decoder.v` — structural gate-level implementation.
-- `../sim/seven_segment_decoder_tb.v` — exhaustive self-checking testbench.
-- `../scripts/force_inputs.tcl` — all 16 add_force checks.
+Keep waveform screenshots and any instructor-required report material here.
+Generated projects and bitstreams stay in ignored `build/`, just like the other labs.
+Verified in Vivado 2025.2: all 16 testbench cases passed, including digit enables
+and decimal point; synthesis, implementation, and bitstream generation completed.
+Physical board operation must be checked on the lab board.

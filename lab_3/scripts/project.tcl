@@ -21,10 +21,10 @@ if {[llength [get_projects -quiet]] > 0} {
 set_property target_language Verilog [current_project]
 set_property simulator_language Mixed [current_project]
 set_property target_simulator XSim [current_project]
-# Decoder-only lab: synthesis and simulation use the FPGA part without board pins.
+# Basys 3 pin assignments are included for bitstream generation.
 # Source directories are authoritative, including additions and removals.
 # add_files references tracked originals, so GUI edits are visible to Git.
-foreach {fileset folder pattern} {sources_1 rtl *.v sim_1 sim *.v} {
+foreach {fileset folder pattern} {sources_1 rtl *.v constrs_1 constraints *.xdc sim_1 sim *.v} {
     set old_files [get_files -quiet -of_objects [get_filesets $fileset]]
     set source_files [glob -nocomplain -directory [file join $lab_dir $folder] $pattern]
     if {![llength $source_files]} { error "No $pattern files in $folder" }

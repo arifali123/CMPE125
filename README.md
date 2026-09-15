@@ -31,11 +31,11 @@ Run simulation, synthesis, and programming from the Vivado UI.
 
 ```sh
 ./lab open lab_3          # Seven-segment decoder
-vivado -mode batch -source lab_3/scripts/verify.tcl
 ```
 
-The [Lab 3 report](lab_3/notes/README.md) includes the truth table, simplified
-equations, design explanation, and verification/submission instructions.
+Lab 3 uses SW0–SW3 to display 0–F on the rightmost Basys 3 digit.
+Run Behavioral Simulation, then Generate Bitstream and Program Device in Vivado.
+See [Lab 3 notes](lab_3/notes/README.md) for manual project setup and the truth table.
 
 ## Save and sync
 
