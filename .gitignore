@@ -1,0 +1,16 @@
+# Recreated on each computer from source and Tcl.
+**/build/
+.Xil/
+*.jou
+*.log
+*.str
+*.zip
+*.backup.*
+*.wdb
+*.vcd
+# Editor and OS files
+.vscode/
+.idea/
+*~
+.DS_Store
+Thumbs.db
