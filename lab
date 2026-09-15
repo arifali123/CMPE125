@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+
+usage() {
+    printf 'Usage: ./lab open <folder>\n\nAvailable labs:\n'
+    for script in "$repo_dir"/*/scripts/project.tcl; do
+        [[ -f "$script" ]] || continue
+        folder=${script%/scripts/project.tcl}
+        printf '  %s\n' "${folder##*/}"
+    done
+}
+
+if [[ $# -eq 0 || ( $# -eq 1 && ( $1 == --help || $1 == -h ) ) ]]; then
+    usage
+    exit 0
+fi
+if [[ $# -ne 2 || $1 != open ]]; then
+    usage >&2
+    exit 1
+fi
+
+folder=$2
+case "$folder" in
+    ''|.|..|*/*) printf 'Choose a lab folder directly inside this repository.\n' >&2; exit 1 ;;
+esac
+if [[ ! -f "$repo_dir/$folder/scripts/project.tcl" ]]; then
+    printf 'No project setup found for "%s".\n\n' "$folder" >&2
+    usage >&2
+    exit 1
+fi
+if ! vivado_bin=$(command -v "${VIVADO:-vivado}"); then
+    printf 'Vivado not found. Source your Vivado 2025.2 settings64.sh, then try again.\n' >&2
+    exit 1
+fi
+[[ "$vivado_bin" == /* ]] || vivado_bin="$PWD/$vivado_bin"
+
+mkdir -p -- "$repo_dir/$folder/build"
+cd -- "$repo_dir/$folder/build"
+printf 'Opening %s in Vivado...\n' "$folder"
+exec "$vivado_bin" -mode gui -source ../scripts/project.tcl

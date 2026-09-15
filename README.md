@@ -9,11 +9,10 @@ implementation, and programming yourself in the Vivado UI.
 From the repository folder:
 
 ```sh
-make open lab_1
+./lab open lab_1
 ```
 
-Use `make open lab_2` to open the full-adder lab. Running `make` lists the available labs and usage.
-The previous `make gui` command remains an alias for Lab 1.
+Use `./lab open lab_2` to open the full-adder lab. Running `./lab` lists the available labs and usage.
 
 The first launch creates
 `lab_1/build/light/light.xpr`; later launches reopen it and refresh the source list.
@@ -26,9 +25,9 @@ source /path/to/AMD/2025.2/Vivado/settings64.sh
 ```
 
 The installation path can differ between computers. Check `vivado -version` for
-2025.2. Alternatively: `make open lab_1 VIVADO=/path/to/vivado`.
+2025.2. Alternatively: `VIVADO=/path/to/vivado ./lab open lab_1`.
 
-Without Make, open Vivado and enter this in its Tcl Console (adjust the path):
+Alternatively, open Vivado and enter this in its Tcl Console (adjust the path):
 
 ```tcl
 source /path/to/CMPE125/lab_1/scripts/project.tcl
@@ -38,7 +37,7 @@ Close any other project first. Script paths follow the clone location automatica
 
 ## Simulate all four states in the GUI
 
-1. Launch with `make open lab_1` so the testbench is added to **Simulation Sources**.
+1. Launch with `./lab open lab_1` so the testbench is added to **Simulation Sources**.
 2. Click **Run Simulation → Run Behavioral Simulation**.
 3. Click **Zoom Fit** in the waveform view to see the full 200 ns.
 
@@ -62,7 +61,7 @@ simulation top instead; this setup uses the testbench to produce the same states
 ## Lab 2: full adder
 
 ```sh
-make open lab_2
+./lab open lab_2
 ```
 
 The RTL and switch/LED assignments match the classroom screenshots.
@@ -94,7 +93,7 @@ GitHub account and clone:
 ```sh
 git clone https://github.com/arifali123/CMPE125.git
 cd CMPE125
-make open lab_1
+./lab open lab_1
 ```
 
 Before leaving a computer, save your files in Vivado, then:
@@ -108,7 +107,7 @@ git push
 ```
 
 On the other computer, close Vivado, run `git pull --ff-only` in your existing
-checkout, and run `make open lab_1`. Use a local folder outside cloud-synced storage.
+checkout, and run `./lab open lab_1`. Use a local folder outside cloud-synced storage.
 If the lab clears local files between sessions, push before logging out.
 
 ## What gets saved
@@ -134,7 +133,7 @@ travel between computers in `scripts/project.tcl`; the script restores its own
 settings on each launch. The starter selects the Basys 3 part `xc7a35tcpg236-1`
 and uses installed board files when available.
 
-For another lab with its own setup script, use `make open lab_2`.
+For another lab with its own setup script, use `./lab open lab_2`.
 
 ## References
 
