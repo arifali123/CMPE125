@@ -108,7 +108,8 @@ Run Behavioral Simulation and Zoom Fit for the full 1600 ns waveform.
 
 The batch script also runs each decoder as the simulation top and sources
 `../scripts/force_inputs.tcl`. This uses `add_force` for every digit, waits 100 ns,
-and compares HEX0 to the truth table. For manual use, set the simulation top to
+and compares HEX0 to the truth table. It first runs 1 ns to initialize procedural
+blocks before forcing inputs, producing a 1601 ns sweep. For manual use, set the simulation top to
 `lab03_arif` or `lab03_arif_direct`, start Behavioral Simulation, and source
 `lab_3/scripts/force_inputs.tcl` using its absolute path in the Tcl Console.
 Restore `lab03_arif_tb` as simulation top afterward.
@@ -122,7 +123,11 @@ Run Synthesis and inspect the synthesized schematic as well.
 
 ## Results and submission evidence
 
-See `verification.txt` for the recorded execution result. Generated Vivado logs,
+Both implementations passed all 16 testbench cases and all 16 standalone
+`add_force` checks each in Vivado 2025.2. Both elaborated and synthesized
+successfully without latches. Both map to seven LUT4 primitives (four slice LUTs
+after LUT combining), with zero registers. See `verification.txt` for the recorded
+execution result and resource comparison. Generated Vivado logs,
 waveform databases, checkpoints, and utilization reports stay in ignored `build/`.
 
 Before submitting on Canvas, capture actual XSim waveform screenshots and Vivado
