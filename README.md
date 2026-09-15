@@ -12,8 +12,7 @@ From the repository folder:
 make open lab_1
 ```
 
-Use `make open lab_2` for a future `lab_2` folder containing its own
-`scripts/project.tcl`. Running `make` lists the available labs and usage.
+Use `make open lab_2` to open the full-adder lab. Running `make` lists the available labs and usage.
 The previous `make gui` command remains an alias for Lab 1.
 
 The first launch creates
@@ -59,6 +58,33 @@ leaving the waveform available for inspection and screenshots. Save your screens
 in `lab_1/notes/`, then close simulation when finished. No manual input forces are
 needed with the testbench. The handout's manual-force example uses `light` as the
 simulation top instead; this setup uses the testbench to produce the same states.
+
+## Lab 2: full adder
+
+```sh
+make open lab_2
+```
+
+The RTL and switch/LED assignments match the classroom screenshots.
+`Full_Adder` is the synthesis top; `Full_Adder_tb` is the simulation top.
+Click **Run Simulation → Run Behavioral Simulation**, then **Zoom Fit**.
+
+The testbench in `lab_2/sim/Full_Adder_tb.v` uses a **for loop** to drive all eight
+combinations, holding each for 10 ns. A toggles fastest, followed by B and Cin,
+matching the screenshot's ordering. Each iteration checks `{Cout, S}` against
+`A + B + Cin`; simulation finishes at 80 ns with
+`PASS: All eight full-adder states verified.` if every check passes.
+
+| Signal | Basys 3 control | FPGA pin |
+| --- | --- | --- |
+| A | SW0 | V17 |
+| B | SW1 | V16 |
+| Cin | SW2 | W16 |
+| S | LED0 | U16 |
+| Cout | LED1 | E19 |
+
+Save Lab 2 screenshots and notes in `lab_2/notes/`. To commit that lab's changes,
+use `git add lab_2` in the save workflow below.
 
 ## Move between computers
 
