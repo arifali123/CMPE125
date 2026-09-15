@@ -33,6 +33,29 @@ source /path/to/CMPE125/lab_1/scripts/project.tcl
 
 Close any other project first. Script paths follow the clone location automatically.
 
+## Simulate all four states in the GUI
+
+1. Launch with `make gui` so the testbench is added to **Simulation Sources**.
+2. Click **Run Simulation → Run Behavioral Simulation**.
+3. Click **Zoom Fit** in the waveform view to see the full 200 ns.
+
+The simulation top is `light_tb`; the synthesis top remains `light`.
+`lab_1/sim/light_tb.v` drives and checks every input combination automatically:
+
+| Time | x1 | x2 | Expected f |
+| --- | --- | --- | --- |
+| 0–50 ns | 0 | 0 | 0 |
+| 50–100 ns | 1 | 0 | 1 |
+| 100–150 ns | 0 | 1 | 1 |
+| 150–200 ns | 1 | 1 | 0 |
+
+The Tcl Console prints `PASS: All four XOR states verified.` on success; a wrong
+or unknown output triggers a fatal simulation error. Simulation finishes at 200 ns,
+leaving the waveform available for inspection and screenshots. Save your screenshot
+in `lab_1/notes/`, then close simulation when finished. No manual input forces are
+needed with the testbench. The handout's manual-force example uses `light` as the
+simulation top instead; this setup uses the testbench to produce the same states.
+
 ## Move between computers
 
 The GitHub repository is private: `arifali123/CMPE125`. Authenticate with your
@@ -63,6 +86,7 @@ If the lab clears local files between sessions, push before logging out.
 ```text
 lab_1/
   rtl/light.v             XOR starter from the handout
+  sim/light_tb.v         Testbench covering all four XOR states
   constraints/basys3.xdc  Basys 3: SW0/SW1 inputs, LED0 output
   scripts/project.tcl    Creates or opens the GUI project
   notes/                 Your notes and screenshots
@@ -70,8 +94,8 @@ lab_1/
 ```
 
 Edit the files in `rtl/` and `constraints/` directly in Vivado; Git sees those edits.
-Save new Verilog files in `rtl/` and new XDC files in `constraints/`. The setup scans
-those folders on launch. In Add Sources, leave **Copy sources into project**
+Save design Verilog in `rtl/`, testbench Verilog in `sim/`, and XDC files in
+`constraints/`. The setup scans those folders on launch. In Add Sources, leave **Copy sources into project**
 unchecked. Files saved only inside `build/` do not travel with Git.
 
 Git preserves sources, constraints, Tcl, and saved notes. GUI layout, generated
