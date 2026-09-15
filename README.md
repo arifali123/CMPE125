@@ -151,6 +151,20 @@ For another small RTL lab, copy the tracked `lab_1` structure to `lab_2` **witho
 build/**, change its module, project settings, constraints, and scripts, then use
 `make gui LAB=lab_2`. The simulation script is specific to Lab 1 and must be replaced.
 
+## Verification
+
+Verified on Linux with Vivado 2025.2 on 2026-09-14:
+
+- Project creation and reopening with source refresh.
+- XSim: all four XOR truth-table rows pass; batch command exits successfully.
+- Synthesis: one LUT2 and three bonded IOBs, matching the handout.
+- Implementation and bitstream generation complete successfully.
+- A separate local Git clone under `/tmp` recreates and simulates successfully,
+  verifying that source paths do not depend on the original checkout.
+
+The lab machine and physical board have not yet been tested. Generated logs,
+reports, and bitstreams stay in `lab_1/build/` on each machine.
+
 ## References
 
 - [AMD: creating projects using Tcl](https://docs.amd.com/r/2023.1-English/ug893-vivado-ide/Creating-Projects-Using-Tcl-Commands)
