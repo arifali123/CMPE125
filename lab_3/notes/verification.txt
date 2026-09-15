@@ -65,7 +65,7 @@ lab03_arif_direct
   |   Register as Latch     |    0 |     0 |          0 |     41600 |  0.00 |
 
 Both designs elaborated and synthesized successfully; no inferred latches.
-Both GUI projects created and reopened successfully in batch smoke checks.
+The consolidated Lab 3 project reopened successfully in a Vivado batch smoke check.
 No design errors or critical warnings. XSim reported warning 43-3431 about
 the existing LIBRARY_PATH environment variable; compilation and simulation passed.
 

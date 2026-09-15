@@ -87,13 +87,17 @@ for the actual design view.
 From the repository root:
 
 ```sh
-./lab open lab_3          # Gate-level project: lab03_arif
-./lab open lab_3_direct   # Separate direct-Verilog project: lab03_arif_direct
+./lab open lab_3          # One project containing both implementations
 vivado -mode batch -source lab_3/scripts/verify.tcl
 ```
 
-Both projects use the existing repository's Artix-7 part `xc7a35tcpg236-1`.
-The handout requires decoder synthesis and simulation, so these projects expose
+Both implementations are in this one project. In Design Sources, right-click
+`lab03_arif` (gate-level) or `lab03_arif_direct` (direct Verilog) and choose
+**Set as Top** before synthesis. The simulation top `lab03_arif_tb` tests both
+together. Reopening with `./lab` selects the gate-level synthesis top by default.
+
+The project uses the existing repository's Artix-7 part `xc7a35tcpg236-1`.
+The handout requires decoder synthesis and simulation, so this project exposes
 only SW and HEX0 and have no board pin constraints. Physical display operation
 also requires board pin assignments and digit-enable/decimal-point signals.
 
@@ -118,7 +122,7 @@ Restore `lab03_arif_tb` as simulation top afterward.
 
 The verification script elaborates and synthesizes both implementations, checks
 for latches, and saves checkpoints and utilization reports under `lab_3/build/verification`.
-In each GUI project, select RTL Analysis → Open Elaborated Design → Schematic.
+For each selected synthesis top, select RTL Analysis → Open Elaborated Design → Schematic.
 Run Synthesis and inspect the synthesized schematic as well.
 
 ## Results and submission evidence

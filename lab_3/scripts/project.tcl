@@ -1,6 +1,6 @@
 # Run with Vivado, or source from its Tcl Console. Paths follow this script.
 set lab_dir [file normalize [file join [file dirname [info script]] ..]]
-if {![info exists decoder_top]} { set decoder_top lab03_arif }
+set decoder_top lab03_arif
 set project_dir [file join $lab_dir build $decoder_top]
 set project_file [file join $project_dir $decoder_top.xpr]
 set part xc7a35tcpg236-1
