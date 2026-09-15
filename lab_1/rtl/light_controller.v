@@ -1,5 +1,5 @@
 // Two-way light controller from the Lab 1 handout.
-module light (
+module light_controller (
     input wire x1,
     input wire x2,
     output wire f

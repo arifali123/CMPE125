@@ -21,6 +21,12 @@ Make sure `vivado` is on your PATH. If needed, source your installation's
 
 Run simulation, synthesis, and programming from the Vivado UI.
 
+| Lab | Circuit module | Testbench |
+|---|---|---|
+| 1 | `light_controller` | `light_controller_tb` |
+| 2 | `full_adder` | `full_adder_tb` |
+| 3 | `seven_segment_decoder` | `seven_segment_decoder_tb` |
+
 ### Lab 3: seven-segment decoder
 
 ```sh

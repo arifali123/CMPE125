@@ -1,6 +1,6 @@
 # Run with Vivado, or source from its Tcl Console. Paths follow this script.
 set lab_dir [file normalize [file join [file dirname [info script]] ..]]
-set decoder_top lab03_arif
+set decoder_top seven_segment_decoder
 set project_dir [file join $lab_dir build $decoder_top]
 set project_file [file join $project_dir $decoder_top.xpr]
 set part xc7a35tcpg236-1
@@ -40,7 +40,7 @@ foreach {fileset folder pattern} {sources_1 rtl *.v sim_1 sim *.v} {
     }
 }
 set_property top $decoder_top [get_filesets sources_1]
-set_property top lab03_arif_tb [get_filesets sim_1]
+set_property top seven_segment_decoder_tb [get_filesets sim_1]
 set_property xsim.simulate.runtime 1600ns [get_filesets sim_1]
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1

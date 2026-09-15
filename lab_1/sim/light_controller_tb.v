@@ -1,12 +1,12 @@
 `timescale 1ns / 1ps
 
 // All four states, held for 50 ns each (matching the handout's waveform).
-module light_tb;
+module light_controller_tb;
     reg x1;
     reg x2;
     wire f;
 
-    light dut (
+    light_controller dut (
         .x1(x1),
         .x2(x2),
         .f(f)

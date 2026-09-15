@@ -1,11 +1,11 @@
 `timescale 1ns / 1ps
-module lab03_arif_tb;
+module seven_segment_decoder_tb;
     reg [3:0] SW;
     wire [6:0] HEX0;
     reg [6:0] lit_segments [0:15];
     reg [6:0] expected;
     integer i;
-    lab03_arif dut (.SW(SW), .HEX0(HEX0));
+    seven_segment_decoder dut (.SW(SW), .HEX0(HEX0));
     initial begin
         // Independent oracle: 1 means a segment is illuminated, g through a.
         lit_segments[0] = 7'b0111111; // 0: abcdef

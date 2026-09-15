@@ -88,7 +88,7 @@ From the repository root:
 vivado -mode batch -source lab_3/scripts/verify.tcl
 ```
 
-The synthesis top is `lab03_arif`; the simulation top is `lab03_arif_tb`.
+The synthesis top is `seven_segment_decoder`; the simulation top is `seven_segment_decoder_tb`.
 
 The project uses the existing repository's Artix-7 part `xc7a35tcpg236-1`.
 The handout requires decoder synthesis and simulation, so this project exposes
@@ -108,9 +108,9 @@ The batch script also runs the decoder as the simulation top and sources
 `../scripts/force_inputs.tcl`. This uses `add_force` for every digit, waits 100 ns,
 and compares HEX0 to the truth table. It first runs 1 ns to initialize procedural
 blocks before forcing inputs, producing a 1601 ns sweep. For manual use, set the simulation top to
-`lab03_arif`, start Behavioral Simulation, and source
+`seven_segment_decoder`, start Behavioral Simulation, and source
 `lab_3/scripts/force_inputs.tcl` using its absolute path in the Tcl Console.
-Restore `lab03_arif_tb` as simulation top afterward.
+Restore `seven_segment_decoder_tb` as simulation top afterward.
 
 ### Synthesis and schematics
 
@@ -130,6 +130,6 @@ guideline (not provided with the handout). Hardware demonstration is not claimed
 
 Attach these source files to the report:
 
-- `../rtl/lab03_arif.v` — structural gate-level implementation.
-- `../sim/lab03_arif_tb.v` — exhaustive self-checking testbench.
+- `../rtl/seven_segment_decoder.v` — structural gate-level implementation.
+- `../sim/seven_segment_decoder_tb.v` — exhaustive self-checking testbench.
 - `../scripts/force_inputs.tcl` — all 16 add_force checks.

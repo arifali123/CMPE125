@@ -1,7 +1,7 @@
 # Run with Vivado, or source from its Tcl Console. Paths follow this script.
 set lab_dir [file normalize [file join [file dirname [info script]] ..]]
-set project_dir [file join $lab_dir build Full_Adder]
-set project_file [file join $project_dir Full_Adder.xpr]
+set project_dir [file join $lab_dir build full_adder]
+set project_file [file join $project_dir full_adder.xpr]
 set part xc7a35tcpg236-1
 
 if {[llength [get_parts -quiet $part]] == 0} {
@@ -15,7 +15,7 @@ if {[llength [get_projects -quiet]] > 0} {
 } elseif {[file exists $project_file]} {
     open_project $project_file
 } else {
-    create_project Full_Adder $project_dir -part $part
+    create_project full_adder $project_dir -part $part
 }
 set_property target_language Verilog [current_project]
 set_property simulator_language Mixed [current_project]
@@ -44,8 +44,8 @@ foreach {fileset folder pattern} {sources_1 rtl *.v constrs_1 constraints *.xdc 
         }
     }
 }
-set_property top Full_Adder [get_filesets sources_1]
-set_property top Full_Adder_tb [get_filesets sim_1]
+set_property top full_adder [get_filesets sources_1]
+set_property top full_adder_tb [get_filesets sim_1]
 set_property xsim.simulate.runtime 80ns [get_filesets sim_1]
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1

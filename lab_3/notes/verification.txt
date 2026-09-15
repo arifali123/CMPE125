@@ -43,7 +43,10 @@ Synthesis utilization:
 |   Register as Latch     |    0 |     0 |          0 |     41600 |  0.00 |
 
 The decoder elaborated and synthesized successfully with no inferred latches.
-The Vivado project was recreated successfully after removing the extra source.
+After module renaming, all three Vivado projects opened successfully.
+light_controller_tb: all 4 states passed.
+full_adder_tb: all 8 states passed.
+seven_segment_decoder_tb: all 16 states passed; add_force and synthesis also passed.
 XSim warned about the existing LIBRARY_PATH environment variable; all checks passed.
 
 GUI screenshots and Canvas-specific report formatting remain.

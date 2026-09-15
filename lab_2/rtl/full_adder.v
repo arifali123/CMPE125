@@ -1,7 +1,7 @@
 `timescale 1ns / 1ps
 
 // Full adder from the Lab 2 classroom example.
-module Full_Adder (
+module full_adder (
     input A,
     input B,
     input Cin,

@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-module Full_Adder_tb;
+module full_adder_tb;
     reg A;
     reg B;
     reg Cin;
@@ -9,7 +9,7 @@ module Full_Adder_tb;
     integer i;
     reg [1:0] expected;
 
-    Full_Adder uut (
+    full_adder uut (
         .A(A),
         .B(B),
         .Cin(Cin),
