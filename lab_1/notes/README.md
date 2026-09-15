@@ -7,5 +7,5 @@ These files are tracked by Git; generated simulation data under `build/` is not.
 
 - Starter XOR circuit from the handout: `../rtl/light.v`.
 - SW0 and SW1 drive LED0 on a Basys 3.
-- Capture your waveform from Vivado after running `scripts/waves.tcl`.
+- Capture your waveform from the Vivado UI following the lab handout.
 - Hardware demonstration and lab submission remain to be done.

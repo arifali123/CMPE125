@@ -31,14 +31,21 @@ if {[llength $boards] > 0} {
 # add_files references tracked originals, so GUI edits are visible to Git.
 foreach {fileset folder pattern} {sources_1 rtl *.v constrs_1 constraints *.xdc} {
     set old_files [get_files -quiet -of_objects [get_filesets $fileset]]
-    if {[llength $old_files]} { remove_files -fileset $fileset $old_files }
     set source_files [glob -nocomplain -directory [file join $lab_dir $folder] $pattern]
     if {![llength $source_files]} { error "No $pattern files in $folder" }
-    add_files -norecurse -fileset $fileset $source_files
+    foreach old_file $old_files {
+        if {[lsearch -exact $source_files $old_file] < 0} {
+            remove_files -fileset $fileset $old_file
+        }
+    }
+    foreach source_file $source_files {
+        if {[lsearch -exact $old_files $source_file] < 0} {
+            add_files -norecurse -fileset $fileset $source_file
+        }
+    }
 }
 set_property top light [get_filesets sources_1]
 set_property top light [get_filesets sim_1]
-set_property xsim.simulate.runtime 0ns [get_filesets sim_1]
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
 puts "INFO: Lab 1 ready: $project_file (Vivado [version -short])"
