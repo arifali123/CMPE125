@@ -4,7 +4,7 @@ Author: Arif Ali
 
 ## Objective and interface
 
-Implement a seven-segment decoder using the case statement in the supplied example.
+Implement a seven-segment decoder using gates derived from seven K-maps.
 `SW[3:0] = D3 D2 D1 D0`; `HEX0[6:0] = Sg Sf Se Sd Sc Sb Sa`.
 Outputs are active low: 0 illuminates a segment. B and D use lowercase b and d
 as shown in the handout. All 16 inputs are defined; there are no don't-care digits.
@@ -32,12 +32,129 @@ as shown in the handout. All 16 inputs are defined; there are no don't-care digi
 
 ## Implementation
 
-The decoder follows the supplied PDF: `always @(*)`, a case for each input
-from 0 through F, and `AN = 4'b1110`. The module names remain descriptive:
-`seven_segment_decoder` and `seven_segment_decoder_tb`.
+The decoder uses NOT, AND, and OR gate primitives implementing the simplified
+K-map SOP equations below. Four shared inverters feed named product-term gates;
+one OR gate per segment drives HEX0. AN = 1110 selects the rightmost digit.
 
-The testbench matches the example's simple loop: drive 0–F for 100 ns each,
-then `$stop` to inspect the waveform. Compare HEX0 against the table above.
+The testbench cycles through 0–F for 100 ns each, checks the full segment output
+against the truth table and verifies AN, then stops for waveform inspection.
+
+## Verified K-maps and SOP equations
+
+A = D3 = SW[3], B = D2 = SW[2], C = D1 = SW[1], D = D0 = SW[0].
+Rows are AB and columns are CD, both in Gray-code order 00, 01, 11, 10.
+Each map gives the actual active-low segment output: group the 1s (segment OFF).
+All hexadecimal inputs 0–F are valid, so there are no don't-cares.
+A prime means NOT, adjacent letters mean AND, and + means OR.
+
+Each listed group contains only 1s, and the groups cover every 1 in its map.
+Groups are labeled by hexadecimal input values. The covers were also checked
+against all valid Boolean cubes for minimum term count, then minimum literals.
+
+### Sa — HEX0[0]
+
+| AB \ CD | 00 | 01 | 11 | 10 |
+|---|---|---|---|---|
+| 00 | 0 | 1 | 0 | 0 |
+| 01 | 1 | 0 | 0 | 0 |
+| 11 | 0 | 1 | 0 | 0 |
+| 10 | 0 | 0 | 1 | 0 |
+
+Groups: {1}, {4}, {B}, {D}.
+
+```text
+Sa = A'B'C'D + A'BC'D' + AB'CD + ABC'D
+```
+
+### Sb — HEX0[1]
+
+| AB \ CD | 00 | 01 | 11 | 10 |
+|---|---|---|---|---|
+| 00 | 0 | 0 | 0 | 0 |
+| 01 | 0 | 1 | 0 | 1 |
+| 11 | 1 | 0 | 1 | 1 |
+| 10 | 0 | 0 | 1 | 0 |
+
+Groups: {5}, {C, E}, {B, F}, {6, E}.
+
+```text
+Sb = A'BC'D + ABD' + ACD + BCD'
+```
+
+### Sc — HEX0[2]
+
+| AB \ CD | 00 | 01 | 11 | 10 |
+|---|---|---|---|---|
+| 00 | 0 | 0 | 0 | 1 |
+| 01 | 0 | 0 | 0 | 0 |
+| 11 | 1 | 0 | 1 | 1 |
+| 10 | 0 | 0 | 0 | 0 |
+
+Groups: {2}, {E, F}, {C, E}.
+
+```text
+Sc = A'B'CD' + ABC + ABD'
+```
+
+### Sd — HEX0[3]
+
+| AB \ CD | 00 | 01 | 11 | 10 |
+|---|---|---|---|---|
+| 00 | 0 | 1 | 0 | 0 |
+| 01 | 1 | 0 | 1 | 0 |
+| 11 | 0 | 0 | 1 | 0 |
+| 10 | 0 | 0 | 0 | 1 |
+
+Groups: {1}, {4}, {A}, {7, F}.
+
+```text
+Sd = A'B'C'D + A'BC'D' + AB'CD' + BCD
+```
+
+### Se — HEX0[4]
+
+| AB \ CD | 00 | 01 | 11 | 10 |
+|---|---|---|---|---|
+| 00 | 0 | 1 | 1 | 0 |
+| 01 | 1 | 1 | 1 | 0 |
+| 11 | 0 | 0 | 0 | 0 |
+| 10 | 0 | 1 | 0 | 0 |
+
+Groups: {4, 5}, {1, 3, 5, 7}, {1, 9}.
+
+```text
+Se = A'BC' + A'D + B'C'D
+```
+
+### Sf — HEX0[5]
+
+| AB \ CD | 00 | 01 | 11 | 10 |
+|---|---|---|---|---|
+| 00 | 0 | 1 | 1 | 1 |
+| 01 | 0 | 0 | 1 | 0 |
+| 11 | 0 | 1 | 0 | 0 |
+| 10 | 0 | 0 | 0 | 0 |
+
+Groups: {D}, {2, 3}, {1, 3}, {3, 7}.
+
+```text
+Sf = ABC'D + A'B'C + A'B'D + A'CD
+```
+
+### Sg — HEX0[6]
+
+| AB \ CD | 00 | 01 | 11 | 10 |
+|---|---|---|---|---|
+| 00 | 1 | 1 | 0 | 0 |
+| 01 | 0 | 0 | 1 | 0 |
+| 11 | 1 | 0 | 0 | 0 |
+| 10 | 0 | 0 | 0 | 0 |
+
+Groups: {7}, {C}, {0, 1}.
+
+```text
+Sg = A'BCD + ABC'D' + A'B'C'
+```
 
 ## Open and demonstrate on the Basys 3
 
@@ -52,8 +169,8 @@ To create the project manually on a lab computer:
 4. Add `constraints/basys3.xdc` as a constraints file.
 5. Set `seven_segment_decoder` as design top and `seven_segment_decoder_tb`
    as simulation top.
-6. Run Behavioral Simulation for 1600 ns. The testbench displays all 16 input
-   combinations; compare the waveform against the truth table above.
+6. Run Behavioral Simulation for 1600 ns. The testbench checks all 16 input
+   combinations automatically and reports PASS or stops on a mismatch.
 7. Select Generate Bitstream, allowing synthesis and implementation to run.
 8. Connect and power the Basys 3 through its USB programming port. In Hardware
    Manager, select Open Target → Auto Connect → Program Device and choose the
@@ -61,7 +178,7 @@ To create the project manually on a lab computer:
 9. Toggle SW0–SW3 through 0000–1111. The rightmost digit should display 0–F;
    the other three digits stay off.
 
-`AN = 1110` enables the rightmost digit. The example does not expose a decimal-point
+`AN = 1110` enables the rightmost digit. The module does not expose a decimal-point
 output, so this project has no DP constraint. No clock is needed for a single
 continuously enabled digit. Pins follow the
 [Digilent Basys 3 master constraints](https://github.com/Digilent/digilent-xdc/blob/master/Basys-3-Master.xdc).
@@ -73,6 +190,6 @@ the configuration is lost when power is removed.
 
 Keep waveform screenshots and any instructor-required report material here.
 Generated projects and bitstreams stay in ignored `build/`, just like the other labs.
-Verified with Vivado 2025.2 on 2026-09-17: all 16 simulated outputs matched the
-truth table, and synthesis, implementation, and bitstream generation passed.
+Verified in Vivado 2025.2: all 16 inputs and digit enables passed simulation;
+synthesis, implementation, and bitstream generation completed successfully.
 Physical board operation must be checked on the lab board.
