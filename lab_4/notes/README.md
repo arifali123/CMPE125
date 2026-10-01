@@ -4,7 +4,7 @@ Author: Ryan Rigor
 
 ## Design
 
-Structural Verilog in `../rtl/lab4_ryan.v`, three modules per the handout:
+Structural Verilog in `../rtl/lab4_arif.v`, three modules per the handout:
 
 | Module | Ports |
 |---|---|
