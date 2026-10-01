@@ -28,6 +28,7 @@ Board pin reference: [Digilent Basys 3 Master XDC](https://github.com/Digilent/d
 | 1 | `light_controller` | `light_controller_tb` |
 | 2 | `full_adder` | `full_adder_tb` |
 | 3 | `seven_segment_decoder` | `seven_segment_decoder_tb` |
+| 4 | `CLA4` | `CLA4_tb` |
 
 ### Lab 3: seven-segment decoder
 
@@ -38,6 +39,16 @@ Board pin reference: [Digilent Basys 3 Master XDC](https://github.com/Digilent/d
 Lab 3 uses SW0–SW3 to display 0–F on the rightmost Basys 3 digit.
 Run Behavioral Simulation, then Generate Bitstream and Program Device in Vivado.
 See [Lab 3 notes](lab_3/notes/README.md) for manual project setup and the truth table.
+
+### Lab 4: 4-bit CLA adder
+
+```sh
+./lab open lab_4          # 4-bit carry-lookahead adder
+```
+
+Structural design (`GPFullAdder`, `CLALogic`, `CLA4`) with a self-checking testbench.
+Run Behavioral Simulation; the Basys 3 constraints are already in the project.
+See [Lab 4 notes](lab_4/notes/README.md) for the pin map and the two verification additions.
 
 ## Save and sync
 
