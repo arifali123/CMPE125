@@ -9,7 +9,7 @@ testbench styles required by the Lab 5 handout.
 - `../sim/self_check_tb.v`: Type 2 self-checking testbench with four additions.
 - `../sim/test_vector_tb.v`: Type 3 self-checking, vector-driven testbench.
 - `../sim/test_vector.tv`: four binary input/expected-output vectors.
-- `../scripts/project.tcl`: default launcher entry point for the Type 2 project.
+- `../scripts/project.tcl`: creates one demo project containing both testbenches.
 - `../scripts/self_check_project.tcl`: creates the Type 2 Vivado project.
 - `../scripts/test_vector_project.tcl`: creates the Type 3 Vivado project.
 
@@ -30,13 +30,25 @@ propagates through the entire 4-bit adder to `Co`.
 From the repository root, use the same launcher as the other course projects:
 
 ```sh
-./lab open lab_5                # Type 2 self-checking project (default)
-./lab open lab_5 self_check     # Same project, selected explicitly
-./lab open lab_5 test_vector    # Type 3 vector-driven project
+./lab open lab_5                # One demo project containing both testbenches
 ```
 
 The launcher creates the ignored `lab_5/build/` directory and immediately opens
-the selected project in Vivado. The two variants use separate `.xpr` projects.
+the combined project in Vivado. `self_check_tb` is selected as the default
+simulation top. Run Behavioral Simulation, close the simulation, then in
+**Simulation Sources** right-click `test_vector_tb`, choose **Set as Top**, and
+run Behavioral Simulation again. This demonstrates both required testbench
+styles without closing or swapping projects.
+
+If the submission must follow the handout's literal two-project organization,
+the standalone variants remain available:
+
+```sh
+./lab open lab_5 self_check
+./lab open lab_5 test_vector
+```
+
+Those two commands create separate `.xpr` projects under `lab_5/build/`.
 
 The project scripts can also be run directly in Vivado batch mode:
 

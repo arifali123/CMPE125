@@ -54,18 +54,23 @@ See [Lab 4 notes](lab_4/notes/README.md) for the pin map and the two verificatio
 
 ### Lab 5: 4-bit CLA testbenches
 
-Lab 5 reuses the structural `CLA4` design from Lab 4 and provides the two
-separate testbench projects required by the assignment:
+Lab 5 reuses the structural `CLA4` design from Lab 4. The default project
+contains both required testbenches so the complete lab can be demonstrated
+without closing or swapping Vivado projects:
 
 ```sh
-./lab open lab_5                # Type 2 self-checking project (default)
-./lab open lab_5 self_check     # Type 2 self-checking project (explicit)
-./lab open lab_5 test_vector    # Type 3 vector-file project
+./lab open lab_5                # One project containing both testbenches
 ```
 
-Each testbench runs four additions and prints `PASS` when all expected results
-match. The Type 3 project registers `lab_5/sim/test_vector.tv` as a Vivado
+Run `self_check_tb` first, then set `test_vector_tb` as the simulation top and
+run Behavioral Simulation again. Each testbench runs four additions and prints
+`PASS` when all expected results match. The project registers
+`lab_5/sim/test_vector.tv` as a Vivado
 memory-initialization file, so no machine-specific path changes are needed.
+
+The assignment handout also asks for two separate projects. Standalone variants
+remain available as `./lab open lab_5 self_check` and
+`./lab open lab_5 test_vector` if that exact structure is required for submission.
 See [Lab 5 notes](lab_5/notes/README.md) for the vectors and simulation details.
 
 ## Homework 4: sequential logic and FSMs
