@@ -4,11 +4,18 @@ set -euo pipefail
 repo_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 
 usage() {
-    printf 'Usage: ./lab open <folder>\n\nAvailable labs:\n'
+    printf 'Usage: ./lab open <folder> [project]\n\nAvailable labs:\n'
     for script in "$repo_dir"/*/scripts/project.tcl; do
         [[ -f "$script" ]] || continue
         folder=${script%/scripts/project.tcl}
-        printf '  %s\n' "${folder##*/}"
+        folder_name=${folder##*/}
+        printf '  %s\n' "$folder_name"
+        for variant_script in "$folder"/scripts/*_project.tcl; do
+            [[ -f "$variant_script" ]] || continue
+            variant=${variant_script##*/}
+            variant=${variant%_project.tcl}
+            printf '    project: %s\n' "$variant"
+        done
     done
 }
 
@@ -16,7 +23,7 @@ if [[ $# -eq 0 || ( $# -eq 1 && ( $1 == --help || $1 == -h ) ) ]]; then
     usage
     exit 0
 fi
-if [[ $# -ne 2 || $1 != open ]]; then
+if [[ ( $# -ne 2 && $# -ne 3 ) || $1 != open ]]; then
     usage >&2
     exit 1
 fi
@@ -25,8 +32,23 @@ folder=$2
 case "$folder" in
     ''|.|..|*/*) printf 'Choose a lab folder directly inside this repository.\n' >&2; exit 1 ;;
 esac
-if [[ ! -f "$repo_dir/$folder/scripts/project.tcl" ]]; then
-    printf 'No project setup found for "%s".\n\n' "$folder" >&2
+
+project=${3:-}
+if [[ -n "$project" ]]; then
+    case "$project" in
+        .|..|*/*) printf 'Choose a project name listed for this lab.\n' >&2; exit 1 ;;
+    esac
+    project_script="${project}_project.tcl"
+else
+    project_script=project.tcl
+fi
+
+if [[ ! -f "$repo_dir/$folder/scripts/$project_script" ]]; then
+    if [[ -n "$project" ]]; then
+        printf 'No project "%s" found for "%s".\n\n' "$project" "$folder" >&2
+    else
+        printf 'No project setup found for "%s".\n\n' "$folder" >&2
+    fi
     usage >&2
     exit 1
 fi
@@ -38,5 +60,9 @@ fi
 
 mkdir -p -- "$repo_dir/$folder/build"
 cd -- "$repo_dir/$folder/build"
-printf 'Opening %s in Vivado...\n' "$folder"
-exec "$vivado_bin" -mode gui -source ../scripts/project.tcl
+if [[ -n "$project" ]]; then
+    printf 'Opening %s (%s) in Vivado...\n' "$folder" "$project"
+else
+    printf 'Opening %s in Vivado...\n' "$folder"
+fi
+exec "$vivado_bin" -mode gui -source "../scripts/$project_script"

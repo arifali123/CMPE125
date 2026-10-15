@@ -15,8 +15,9 @@ Make sure `vivado` is on your PATH. If needed, source your installation's
 ## Open a lab
 
 ```sh
-./lab                 # List available labs
-./lab open <folder>   # Open a lab in Vivado
+./lab                           # List available labs and project variants
+./lab open <folder>             # Open a lab's default Vivado project
+./lab open <folder> <project>   # Open a named project variant
 ```
 
 Run simulation, synthesis, and programming from the Vivado UI.
@@ -29,6 +30,7 @@ Board pin reference: [Digilent Basys 3 Master XDC](https://github.com/Digilent/d
 | 2 | `full_adder` | `full_adder_tb` |
 | 3 | `seven_segment_decoder` | `seven_segment_decoder_tb` |
 | 4 | `CLA4` | `CLA4_tb` |
+| 5 | `CLA4` | `self_check_tb`, `test_vector_tb` |
 
 ### Lab 3: seven-segment decoder
 
@@ -49,6 +51,22 @@ See [Lab 3 notes](lab_3/notes/README.md) for manual project setup and the truth 
 Structural design (`GPFullAdder`, `CLALogic`, `CLA4`) with a self-checking testbench.
 Run Behavioral Simulation; the Basys 3 constraints are already in the project.
 See [Lab 4 notes](lab_4/notes/README.md) for the pin map and the two verification additions.
+
+### Lab 5: 4-bit CLA testbenches
+
+Lab 5 reuses the structural `CLA4` design from Lab 4 and provides the two
+separate testbench projects required by the assignment:
+
+```sh
+./lab open lab_5                # Type 2 self-checking project (default)
+./lab open lab_5 self_check     # Type 2 self-checking project (explicit)
+./lab open lab_5 test_vector    # Type 3 vector-file project
+```
+
+Each testbench runs four additions and prints `PASS` when all expected results
+match. The Type 3 project registers `lab_5/sim/test_vector.tv` as a Vivado
+memory-initialization file, so no machine-specific path changes are needed.
+See [Lab 5 notes](lab_5/notes/README.md) for the vectors and simulation details.
 
 ## Homework 4: sequential logic and FSMs
 
