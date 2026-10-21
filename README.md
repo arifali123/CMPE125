@@ -15,9 +15,8 @@ Make sure `vivado` is on your PATH. If needed, source your installation's
 ## Open a lab
 
 ```sh
-./lab                           # List available labs and project variants
+./lab                           # List available labs
 ./lab open <folder>             # Open a lab's default Vivado project
-./lab open <folder> <project>   # Open a named project variant
 ```
 
 Run simulation, synthesis, and programming from the Vivado UI.
@@ -31,6 +30,7 @@ Board pin reference: [Digilent Basys 3 Master XDC](https://github.com/Digilent/d
 | 3 | `seven_segment_decoder` | `seven_segment_decoder_tb` |
 | 4 | `CLA4` | `CLA4_tb` |
 | 5 | `CLA4` | `self_check_tb`, `test_vector_tb` |
+| 6 | `vending_machine` | `vending_machine_tb` |
 
 ### Lab 3: seven-segment decoder
 
@@ -68,10 +68,20 @@ run Behavioral Simulation again. Each testbench runs four additions and prints
 `lab_5/sim/test_vector.tv` as a Vivado
 memory-initialization file, so no machine-specific path changes are needed.
 
-The assignment handout also asks for two separate projects. Standalone variants
-remain available as `./lab open lab_5 self_check` and
-`./lab open lab_5 test_vector` if that exact structure is required for submission.
 See [Lab 5 notes](lab_5/notes/README.md) for the vectors and simulation details.
+
+### Lab 6: vending machine FSM
+
+```sh
+./lab open lab_6
+```
+
+Five-state Mealy controller for a 25-cent soda, accepting nickels, dimes, and
+quarters and returning 5, 10, 15, or 20 cents as needed. Run Behavioral
+Simulation to check 228 file-driven vectors covering every state/input
+combination, consecutive purchases, and asynchronous reset.
+See [Lab 6 notes](lab_6/notes/README.md) for the simulation workflow and
+[design report](lab_6/notes/report.md) for the diagrams, tables, and equations.
 
 ## Homework 4: sequential logic and FSMs
 

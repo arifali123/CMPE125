@@ -9,9 +9,7 @@ testbench styles required by the Lab 5 handout.
 - `../sim/self_check_tb.v`: Type 2 self-checking testbench with four additions.
 - `../sim/test_vector_tb.v`: Type 3 self-checking, vector-driven testbench.
 - `../sim/test_vector.tv`: four binary input/expected-output vectors.
-- `../scripts/project.tcl`: creates one demo project containing both testbenches.
-- `../scripts/self_check_project.tcl`: creates the Type 2 Vivado project.
-- `../scripts/test_vector_project.tcl`: creates the Type 3 Vivado project.
+- `../scripts/project.tcl`: creates one project containing both testbenches.
 
 ## Test cases
 
@@ -35,30 +33,12 @@ From the repository root, use the same launcher as the other course projects:
 
 The launcher creates the ignored `lab_5/build/` directory and immediately opens
 the combined project in Vivado. `self_check_tb` is selected as the default
-simulation top. Run Behavioral Simulation, close the simulation, then in
-**Simulation Sources** right-click `test_vector_tb`, choose **Set as Top**, and
-run Behavioral Simulation again. This demonstrates both required testbench
-styles without closing or swapping projects.
+simulation top. Enable the testbench you want in **Simulation Sources**, disable
+the other testbench, and **Set as Top** on the enabled testbench. Run **Run
+Simulation > Run Behavioral Simulation**. Close the simulation before switching
+to the other testbench. Keep `cla4.v` and `test_vector.tv` enabled.
 
-If the submission must follow the handout's literal two-project organization,
-the standalone variants remain available:
-
-```sh
-./lab open lab_5 self_check
-./lab open lab_5 test_vector
-```
-
-Those two commands create separate `.xpr` projects under `lab_5/build/`.
-
-The project scripts can also be run directly in Vivado batch mode:
-
-```text
-vivado -mode batch -source lab_5/scripts/self_check_project.tcl
-vivado -mode batch -source lab_5/scripts/test_vector_project.tcl
-```
-
-Then open the corresponding project under `lab_5/build/`, select **Run
-Simulation > Run Behavioral Simulation**, and run for 1 microsecond. Each
+Run for 1 microsecond. Each
 simulation should end with a `PASS` message reporting four additions and zero
 errors.
 

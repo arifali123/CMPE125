@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 780" width="1100" height="780">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10Z" fill="#334155"/></marker></defs>
+<rect width="100%" height="100%" fill="white"/>
+<g font-family="DejaVu Sans, sans-serif" fill="#172554" stroke-width="2">
+<text x="550" y="32" text-anchor="middle" font-size="23">FSM schematic: combinational logic + three resettable D flip-flops</text>
+<rect x="25" y="80" width="235" height="140" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+<text x="142.5" y="110" text-anchor="middle" font-size="18">Coin decoder</text>
+<text x="142.5" y="138" text-anchor="middle" font-size="15">n = N &amp; ~D &amp; ~Q</text>
+<text x="142.5" y="163" text-anchor="middle" font-size="15">d = ~N &amp; D &amp; ~Q</text>
+<text x="142.5" y="188" text-anchor="middle" font-size="15">q = ~N &amp; ~D &amp; Q</text>
+<rect x="25" y="390" width="235" height="145" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+<text x="142.5" y="420" text-anchor="middle" font-size="18">State decoder</text>
+<text x="142.5" y="448" text-anchor="middle" font-size="15">E0…E4: decode S0…S20</text>
+<text x="142.5" y="473" text-anchor="middle" font-size="15">from x2, x1, x0</text>
+<text x="142.5" y="498" text-anchor="middle" font-size="15">Unused codes: all Ei = 0</text>
+<rect x="345" y="80" width="320" height="190" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+<text x="505.0" y="110" text-anchor="middle" font-size="18">Next-state AND/OR logic</text>
+<text x="505.0" y="138" text-anchor="middle" font-size="15">D2 = h E4 + n E3 + d E2</text>
+<text x="505.0" y="163" text-anchor="middle" font-size="15">D1 = h(E2+E3) + n(E1+E2)</text>
+<text x="505.0" y="188" text-anchor="middle" font-size="15">       + d(E0+E1)</text>
+<text x="505.0" y="213" text-anchor="middle" font-size="15">D0 = h(E1+E3) + n(E0+E2)</text>
+<text x="505.0" y="238" text-anchor="middle" font-size="15">       + d E1</text>
+<rect x="825" y="80" width="130" height="85" fill="#eff6ff" stroke="#2563eb"/>
+<text x="890" y="104" text-anchor="middle" font-size="18">x2</text>
+<text x="840" y="126" text-anchor="middle" font-size="14">D</text>
+<text x="940" y="126" text-anchor="middle" font-size="14">Q</text>
+<text x="890" y="158" text-anchor="middle" font-size="13">CLR</text>
+<path d="M825 138 l10 7 l-10 7" fill="none" stroke="#334155"/>
+<path d="M665 120 H 730 V 122 H825" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M955 122 H1045" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M790 145 H825" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M995 165 H890 V161" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<rect x="825" y="180" width="130" height="85" fill="#eff6ff" stroke="#2563eb"/>
+<text x="890" y="204" text-anchor="middle" font-size="18">x1</text>
+<text x="840" y="226" text-anchor="middle" font-size="14">D</text>
+<text x="940" y="226" text-anchor="middle" font-size="14">Q</text>
+<text x="890" y="258" text-anchor="middle" font-size="13">CLR</text>
+<path d="M825 238 l10 7 l-10 7" fill="none" stroke="#334155"/>
+<path d="M665 175 H 750 V 222 H825" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M955 222 H1045" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M790 245 H825" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M995 265 H890 V261" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<rect x="825" y="280" width="130" height="85" fill="#eff6ff" stroke="#2563eb"/>
+<text x="890" y="304" text-anchor="middle" font-size="18">x0</text>
+<text x="840" y="326" text-anchor="middle" font-size="14">D</text>
+<text x="940" y="326" text-anchor="middle" font-size="14">Q</text>
+<text x="890" y="358" text-anchor="middle" font-size="13">CLR</text>
+<path d="M825 338 l10 7 l-10 7" fill="none" stroke="#334155"/>
+<path d="M665 230 H 770 V 322 H825" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M955 322 H1045" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M790 345 H825" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M995 365 H890 V361" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M790 390 V145" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<text x="752" y="405" text-anchor="middle" font-size="16">clk</text>
+<path d="M995 700 V165" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<text x="1000" y="719" text-anchor="middle" font-size="16">reset</text>
+<rect x="345" y="420" width="585" height="165" rx="8" fill="#eff6ff" stroke="#2563eb"/>
+<text x="637.5" y="450" text-anchor="middle" font-size="18">Output AND/OR logic, gated by ~reset</text>
+<text x="637.5" y="478" text-anchor="middle" font-size="15">Dispense = q(E0+E1+E2+E3+E4)</text>
+<text x="637.5" y="503" text-anchor="middle" font-size="15">+ d(E3+E4) + n E4</text>
+<text x="637.5" y="528" text-anchor="middle" font-size="15">ReturnNickel = q(E1+E3)+d E4</text>
+<text x="637.5" y="553" text-anchor="middle" font-size="15">ReturnDime = q(E2+E3); ReturnTwoDimes = q E4</text>
+<path d="M260 130 H345" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<text x="304" y="110" text-anchor="middle" font-size="13">n,d,q,h</text>
+<path d="M145 220 V330 H322 V445 H345" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M260 440 H300 V225 H345" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<text x="280" y="375" text-anchor="middle" font-size="13">E0…E4</text>
+<path d="M260 490 H345" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<path d="M1045 122 V635 H145 V535" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<text x="540" y="655" text-anchor="middle" font-size="15">State feedback x[2:0]</text>
+<path d="M930 492 H1075" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<text x="1004" y="472" text-anchor="middle" font-size="14">outputs</text>
+<path d="M995 610 H910 V585" fill="none" stroke="#334155" marker-end="url(#arrow)"/>
+<circle cx="995" cy="165" r="3" fill="#334155"/>
+<circle cx="995" cy="265" r="3" fill="#334155"/>
+<circle cx="995" cy="365" r="3" fill="#334155"/>
+<circle cx="995" cy="610" r="3" fill="#334155"/>
+<circle cx="790" cy="145" r="3" fill="#334155"/>
+<circle cx="790" cy="245" r="3" fill="#334155"/>
+<circle cx="790" cy="345" r="3" fill="#334155"/>
+<circle cx="1045" cy="122" r="3" fill="#334155"/>
+<circle cx="1045" cy="222" r="3" fill="#334155"/>
+<circle cx="1045" cy="322" r="3" fill="#334155"/>
+<text x="500" y="735" text-anchor="middle" font-size="16">All three FFs: rising-edge clock, asynchronous active-high clear.</text>
+<text x="550" y="769" text-anchor="middle" font-size="15">h = ~(n | d | q). Equations use + for OR and adjacency for AND.</text>
+</g>
+</svg>
