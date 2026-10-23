@@ -1,87 +1,134 @@
 `timescale 1ns / 1ps
 
-// Mealy controller: sample coin inputs and outputs at the rising clock edge.
-// 000 holds credit; multiple asserted coin inputs are ignored.
+// Copied from the supplied PDF.
+// State is internal because the PDF has no pin assignments for a state output.
 module vending_machine (
-    input clk,
-    input reset,
-    input Nickel,
-    input Dime,
-    input Quarter,
+    input wire clk,
+    input wire reset,
+    input wire button,
+    input wire Nickel,
+    input wire Dime,
+    input wire Quarter,
     output reg Dispense,
     output reg ReturnNickel,
     output reg ReturnDime,
     output reg ReturnTwoDimes
 );
-    localparam S0  = 3'b000,
-               S5  = 3'b001,
-               S10 = 3'b010,
-               S15 = 3'b011,
-               S20 = 3'b100;
 
-    // Preserve the report's binary encoding during synthesis.
-    (* fsm_encoding = "none" *) reg [2:0] state;
-    reg [2:0] next_state;
+    // Five states
+    parameter S0 = 3'b000,
+              S1 = 3'b001,
+              S2 = 3'b010,
+              S3 = 3'b011,
+              S4 = 3'b100;
 
-    always @(posedge clk or posedge reset) begin
-        if (reset) state <= S0;
-        else       state <= next_state;
+    reg [2:0] state;
+    reg button_prev;
+
+    initial begin
+        state = S0;
+        button_prev = 0;
+        Dispense = 0;
+        ReturnNickel = 0;
+        ReturnDime = 0;
+        ReturnTwoDimes = 0;
     end
+    always @(posedge clk or posedge reset) begin
 
-    always @* begin
-        next_state = state;
-        {Dispense, ReturnNickel, ReturnDime, ReturnTwoDimes} = 4'b0000;
-        case (state)
-            S0: case ({Nickel, Dime, Quarter})
-                3'b100: next_state = S5;
-                3'b010: next_state = S10;
-                3'b001: begin next_state = S0; Dispense = 1'b1; end
-                default: ;
-            endcase
-            S5: case ({Nickel, Dime, Quarter})
-                3'b100: next_state = S10;
-                3'b010: next_state = S15;
-                3'b001: begin
-                    next_state = S0;
-                    Dispense = 1'b1; ReturnNickel = 1'b1;
-                end
-                default: ;
-            endcase
-            S10: case ({Nickel, Dime, Quarter})
-                3'b100: next_state = S15;
-                3'b010: next_state = S20;
-                3'b001: begin
-                    next_state = S0;
-                    Dispense = 1'b1; ReturnDime = 1'b1;
-                end
-                default: ;
-            endcase
-            S15: case ({Nickel, Dime, Quarter})
-                3'b100: next_state = S20;
-                3'b010: begin next_state = S0; Dispense = 1'b1; end
-                3'b001: begin
-                    next_state = S0;
-                    Dispense = 1'b1; ReturnNickel = 1'b1; ReturnDime = 1'b1;
-                end
-                default: ;
-            endcase
-            S20: case ({Nickel, Dime, Quarter})
-                3'b100: begin next_state = S0; Dispense = 1'b1; end
-                3'b010: begin
-                    next_state = S0;
-                    Dispense = 1'b1; ReturnNickel = 1'b1;
-                end
-                3'b001: begin
-                    next_state = S0;
-                    Dispense = 1'b1; ReturnTwoDimes = 1'b1;
-                end
-                default: ;
-            endcase
-            default: next_state = S0;
-        endcase
         if (reset) begin
-            next_state = S0;
-            {Dispense, ReturnNickel, ReturnDime, ReturnTwoDimes} = 4'b0000;
+            state <= S0;
+            button_prev <= 0;
+            Dispense <= 0;
+            ReturnNickel <= 0;
+            ReturnDime <= 0;
+            ReturnTwoDimes <= 0;
+        end
+
+        else begin
+            button_prev <= button;
+
+            // Check if the button was just pressed
+            if (button && !button_prev) begin
+
+                Dispense <= 0;
+                ReturnNickel <= 0;
+                ReturnDime <= 0;
+                ReturnTwoDimes <= 0;
+
+                case (state)
+
+                    S0: begin
+                        if (Nickel)
+                            state <= S1;
+                        else if (Dime)
+                            state <= S2;
+                        else if (Quarter) begin
+                            state <= S0;
+                            Dispense <= 1;
+                        end
+                    end
+
+                    S1: begin
+                        if (Nickel)
+                            state <= S2;
+                        else if (Dime)
+                            state <= S3;
+                        else if (Quarter) begin
+                            state <= S0;
+                            Dispense <= 1;
+                            ReturnNickel <= 1;
+                        end
+                    end
+
+                    S2: begin
+                        if (Nickel)
+                            state <= S3;
+                        else if (Dime)
+                            state <= S4;
+                        else if (Quarter) begin
+                            state <= S0;
+                            Dispense <= 1;
+                            ReturnDime <= 1;
+                        end
+                    end
+
+                    S3: begin
+                        if (Nickel)
+                            state <= S4;
+                        else if (Dime) begin
+                            state <= S0;
+                            Dispense <= 1;
+                        end
+                        else if (Quarter) begin
+                            state <= S0;
+                            Dispense <= 1;
+                            ReturnNickel <= 1;
+                            ReturnDime <= 1;
+                        end
+                    end
+
+                    S4: begin
+                        if (Nickel) begin
+                            state <= S0;
+                            Dispense <= 1;
+                        end
+                        else if (Dime) begin
+                            state <= S0;
+                            Dispense <= 1;
+                            ReturnNickel <= 1;
+                        end
+                        else if (Quarter) begin
+                            state <= S0;
+                            Dispense <= 1;
+                            ReturnTwoDimes <= 1;
+                        end
+                    end
+
+                    default: state <= S0;
+
+                endcase
+            end
         end
     end
+
 endmodule

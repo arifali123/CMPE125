@@ -6,22 +6,22 @@ Open the project from the repository root:
 ./lab open lab_6
 ```
 
-The default design is now the button-driven FSM from the supplied PDF:
-[Verilog](../rtl/vending_machine_board.v), design top `vending_machine_board`.
+The design is the button-driven FSM from the supplied PDF:
+[Verilog](../rtl/vending_machine.v), design top `vending_machine`.
 It uses the PDF's five credit states, `button_prev`, and one clocked block.
-The initialization and clocked logic are copied from the PDF. The module is
-renamed to coexist with the original design, and `state` is internal because
-the PDF's XDC does not assign pins to that debug output.
+The initialization and clocked logic are copied from the PDF. `state` is
+internal because the PDF's XDC does not assign pins to that debug output.
+There is one design file and one testbench for both simulation and the board.
 
 ## Show the testbench first
 
 Choose **Run Simulation > Run Behavioral Simulation**. The default simulation
-top is `vending_machine_board_tb`, so it demonstrates the same code you will
+top is `vending_machine_tb`, so it demonstrates the same code you will
 program onto the board. The waveform opens at 0–220 ns to show the two PDF
 examples. Outputs are registered: inspect them after the accepting rising
 clock edge. They remain asserted after the coin and button are released.
 
-The [testbench](../sim/vending_machine_board_tb.v) checks the PDF's nickel +
+The [testbench](../sim/vending_machine_tb.v) checks the PDF's nickel +
 quarter and dime + dime + nickel examples, then checks all 15 single-coin
 transitions using an arithmetic reference. It also checks holding a button,
 held LED results, asynchronous reset, switches without a press, empty coin
@@ -31,11 +31,11 @@ are selected. Failed checks stop with `$fatal`.
 ## Program the Basys 3
 
 1. Close the simulation and choose **Generate Bitstream**. The design top is
-   `vending_machine_board`, and the device is `xc7a35tcpg236-1`.
+   `vending_machine`, and the device is `xc7a35tcpg236-1`.
 2. Connect and power the board through its programming USB connection.
    Open **Hardware Manager > Open Target > Auto Connect > Program Device**.
 3. Select the newly generated file:
-   `lab_6/build/lab6/lab6.runs/impl_1/vending_machine_board.bit`.
+   `lab_6/build/lab6/lab6.runs/impl_1/vending_machine.bit`.
    Connecting USB or running simulation does not program the FPGA.
 4. Put SW0–SW2 down, then flip **SW3 up and down** to reset.
 5. Select **one** coin switch and press/release the **center button (BTNC)**
@@ -74,14 +74,13 @@ physical button will produce only one edge. Select the coin before pressing.
 
 ## Batch checks and build
 
-Run both the PDF board tests and the original 228-vector Mealy tests:
+Run the testbench:
 
 ```sh
 mkdir -p lab_6/build
 (cd lab_6/build && vivado -mode batch -source ../scripts/verify.tcl)
 ```
 
-The script restores the PDF board testbench and waveform as the defaults.
 Build a bitstream with internal 100 MHz setup/hold checks and DRC reports:
 
 ```sh
@@ -95,12 +94,12 @@ constraints do not add synchronization or debounce. Generated files under
 `build/`, including bitstreams, stay out of Git. Rebuild after pulling sources
 on another computer.
 
-## Original Mealy implementation
+## Report
 
-The original [controller](../rtl/vending_machine.v),
-[testbench](../sim/vending_machine_tb.v), and
-[vectors](../sim/test_vector.tv) remain available and are checked by the batch
-verification script. That controller has combinational Mealy outputs and
-ignores simultaneous coin inputs; it is separate from the PDF board design.
-The existing [report](report.md) and [printable report](report.pdf) describe
-that original controller, not the replacement PDF board implementation.
+The [report](report.md) and [printable report](report.pdf) describe this same
+PDF implementation and include its Verilog, testbench, and pin constraints.
+To rebuild the PDF after editing the report or sources:
+
+```sh
+uv run --with markdown --with weasyprint python lab_6/scripts/report.py
+```

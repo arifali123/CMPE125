@@ -20,20 +20,24 @@ if {[llength [get_projects -quiet]] > 0} {
 set_property target_language Verilog [current_project]
 set_property target_simulator XSim [current_project]
 foreach {fileset folder pattern} {sources_1 rtl *.v constrs_1 constraints *.xdc sim_1 sim *} {
-    foreach source_file [glob -directory [file join $lab_dir $folder] $pattern] {
+    set source_files [glob -directory [file join $lab_dir $folder] $pattern]
+    # Remove old project entries after consolidating to one design/testbench.
+    foreach old_file [get_files -quiet -of_objects [get_filesets $fileset]] {
+        if {[lsearch -exact $source_files $old_file] < 0} {
+            remove_files -fileset $fileset $old_file
+        }
+    }
+    foreach source_file $source_files {
         if {![llength [get_files -quiet -of_objects [get_filesets $fileset] $source_file]]} {
             add_files -norecurse -fileset $fileset $source_file
         }
     }
 }
-set_property file_type {Memory Initialization Files} [get_files [file join $lab_dir sim test_vector.tv]]
-# The default simulation now demonstrates the same PDF design used on the board.
-set_property is_enabled false [get_files [file join $lab_dir sim vending_machine.wcfg]]
-set_property is_enabled true [get_files [file join $lab_dir sim vending_machine_board.wcfg]]
-set_property top vending_machine_board [get_filesets sources_1]
-set_property top vending_machine_board_tb [get_filesets sim_1]
-set_property xsim.view [file join $lab_dir sim vending_machine_board.wcfg] [get_filesets sim_1]
+set_property is_enabled true [get_files [file join $lab_dir sim vending_machine.wcfg]]
+set_property top vending_machine [get_filesets sources_1]
+set_property top vending_machine_tb [get_filesets sim_1]
+set_property xsim.view [file join $lab_dir sim vending_machine.wcfg] [get_filesets sim_1]
 set_property xsim.simulate.runtime all [get_filesets sim_1]
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
-puts "Lab 6 ready: simulate vending_machine_board_tb (PDF FSM), then generate the vending_machine_board bitstream."
+puts "Lab 6 ready: simulate vending_machine_tb, then generate the vending_machine bitstream from the same PDF design."

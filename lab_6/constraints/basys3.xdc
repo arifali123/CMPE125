@@ -1,6 +1,6 @@
 # Basys 3 rev B: matches the vending-machine reference PDF's used pins.
 # Pin reference: https://github.com/Digilent/digilent-xdc/blob/master/Basys-3-Master.xdc
-# Apply to vending_machine_board; the core vending_machine has no button port.
+# Apply to the vending_machine design top.
 
 set_property -dict { PACKAGE_PIN W5 IOSTANDARD LVCMOS33 } [get_ports clk]
 create_clock -name sys_clk_pin -period 10.000 [get_ports clk]

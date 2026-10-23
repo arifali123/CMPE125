@@ -10,7 +10,7 @@ source = (notes / 'report.md').read_text()
 for title, relative in [
     ('Appendix A: synthesizable Verilog', 'rtl/vending_machine.v'),
     ('Appendix B: simulation testbench', 'sim/vending_machine_tb.v'),
-    ('Appendix C: input and expected-output vectors', 'sim/test_vector.tv'),
+    ('Appendix C: Basys 3 pin constraints', 'constraints/basys3.xdc'),
 ]:
     source += f'\n\n## {title}\n\n```text\n{(lab_dir / relative).read_text()}```\n'
 body = markdown.markdown(source, extensions=['tables', 'fenced_code'])

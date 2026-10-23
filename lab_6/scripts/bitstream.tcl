@@ -27,5 +27,5 @@ foreach delay_type {max min} {
     }
 }
 puts "PASS: Basys 3 bitstream built; all ports assigned and internal setup/hold timing met."
-puts "Program: [file join [get_property DIRECTORY [get_runs impl_1]] vending_machine_board.bit]"
+puts "Program: [file join [get_property DIRECTORY [get_runs impl_1]] vending_machine.bit]"
 close_project
