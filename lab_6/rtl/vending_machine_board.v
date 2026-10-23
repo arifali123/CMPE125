@@ -1,82 +1,134 @@
 `timescale 1ns / 1ps
 
-// Basys 3 controls around the unchanged Mealy controller.
-// Select one coin switch, then press/release the center button to insert it.
-module vending_machine_board #(
-    parameter integer DEBOUNCE_CYCLES = 1_000_000 // 10 ms at 100 MHz
-) (
-    input clk,
-    input reset,
-    input button,
-    input Nickel,
-    input Dime,
-    input Quarter,
+// Copied from the supplied PDF; renamed to keep the original Mealy demo.
+// State is internal because the PDF has no pin assignments for a state output.
+module vending_machine_board (
+    input wire clk,
+    input wire reset,
+    input wire button,
+    input wire Nickel,
+    input wire Dime,
+    input wire Quarter,
     output reg Dispense,
     output reg ReturnNickel,
     output reg ReturnDime,
     output reg ReturnTwoDimes
 );
-    // Asynchronous assertion, two-clock synchronized reset release.
-    // Start in reset after FPGA configuration, even with SW3 down.
-    (* ASYNC_REG = "TRUE" *) reg [1:0] reset_sync = 2'b11;
+
+    // Five states
+    parameter S0 = 3'b000,
+              S1 = 3'b001,
+              S2 = 3'b010,
+              S3 = 3'b011,
+              S4 = 3'b100;
+
+    reg [2:0] state;
+    reg button_prev;
+
+    initial begin
+        state = S0;
+        button_prev = 0;
+        Dispense = 0;
+        ReturnNickel = 0;
+        ReturnDime = 0;
+        ReturnTwoDimes = 0;
+    end
     always @(posedge clk or posedge reset) begin
-        if (reset) reset_sync <= 2'b11;
-        else       reset_sync <= {reset_sync[0], 1'b0};
-    end
-    wire board_reset = reset_sync[1];
 
-    (* ASYNC_REG = "TRUE" *) reg [1:0] button_sync;
-    (* ASYNC_REG = "TRUE" *) reg [2:0] coin_meta, coin_sync;
-    always @(posedge clk or posedge board_reset) begin
-        if (board_reset) begin
-            button_sync <= 2'b00;
-            coin_meta <= 3'b000;
-            coin_sync <= 3'b000;
-        end else begin
-            button_sync <= {button_sync[0], button};
-            coin_meta <= {Nickel, Dime, Quarter};
-            coin_sync <= coin_meta;
+        if (reset) begin
+            state <= S0;
+            button_prev <= 0;
+            Dispense <= 0;
+            ReturnNickel <= 0;
+            ReturnDime <= 0;
+            ReturnTwoDimes <= 0;
+        end
+
+        else begin
+            button_prev <= button;
+
+            // Check if the button was just pressed
+            if (button && !button_prev) begin
+
+                Dispense <= 0;
+                ReturnNickel <= 0;
+                ReturnDime <= 0;
+                ReturnTwoDimes <= 0;
+
+                case (state)
+
+                    S0: begin
+                        if (Nickel)
+                            state <= S1;
+                        else if (Dime)
+                            state <= S2;
+                        else if (Quarter) begin
+                            state <= S0;
+                            Dispense <= 1;
+                        end
+                    end
+
+                    S1: begin
+                        if (Nickel)
+                            state <= S2;
+                        else if (Dime)
+                            state <= S3;
+                        else if (Quarter) begin
+                            state <= S0;
+                            Dispense <= 1;
+                            ReturnNickel <= 1;
+                        end
+                    end
+
+                    S2: begin
+                        if (Nickel)
+                            state <= S3;
+                        else if (Dime)
+                            state <= S4;
+                        else if (Quarter) begin
+                            state <= S0;
+                            Dispense <= 1;
+                            ReturnDime <= 1;
+                        end
+                    end
+
+                    S3: begin
+                        if (Nickel)
+                            state <= S4;
+                        else if (Dime) begin
+                            state <= S0;
+                            Dispense <= 1;
+                        end
+                        else if (Quarter) begin
+                            state <= S0;
+                            Dispense <= 1;
+                            ReturnNickel <= 1;
+                            ReturnDime <= 1;
+                        end
+                    end
+
+                    S4: begin
+                        if (Nickel) begin
+                            state <= S0;
+                            Dispense <= 1;
+                        end
+                        else if (Dime) begin
+                            state <= S0;
+                            Dispense <= 1;
+                            ReturnNickel <= 1;
+                        end
+                        else if (Quarter) begin
+                            state <= S0;
+                            Dispense <= 1;
+                            ReturnTwoDimes <= 1;
+                        end
+                    end
+
+                    default: state <= S0;
+
+                endcase
+            end
         end
     end
 
-    localparam integer COUNT_WIDTH = (DEBOUNCE_CYCLES <= 1) ? 1 : $clog2(DEBOUNCE_CYCLES);
-    localparam [COUNT_WIDTH-1:0] LAST_COUNT = DEBOUNCE_CYCLES - 1;
-    reg [COUNT_WIDTH-1:0] debounce_count;
-    reg button_stable, button_previous;
-
-    // Require a stable level on BOTH press and release. A held or bouncing
-    // button cannot repeatedly insert the selected coin.
-    always @(posedge clk or posedge board_reset) begin
-        if (board_reset) begin
-            debounce_count <= 0;
-            button_stable <= 1'b0;
-            button_previous <= 1'b0;
-        end else begin
-            button_previous <= button_stable;
-            if (button_sync[1] == button_stable) debounce_count <= 0;
-            else if (debounce_count == LAST_COUNT) begin
-                button_stable <= button_sync[1];
-                debounce_count <= 0;
-            end else debounce_count <= debounce_count + 1'b1;
-        end
-    end
-    wire insert_coin = button_stable && !button_previous;
-    wire [2:0] sampled_coin = insert_coin ? coin_sync : 3'b000;
-    wire [3:0] result;
-
-    vending_machine controller (
-        .clk(clk), .reset(board_reset),
-        .Nickel(sampled_coin[2]), .Dime(sampled_coin[1]), .Quarter(sampled_coin[0]),
-        .Dispense(result[3]), .ReturnNickel(result[2]),
-        .ReturnDime(result[1]), .ReturnTwoDimes(result[0])
-    );
-
-    // Capture the Mealy result at the SAME edge that accepts the coin.
-    // LEDs keep that result until the next accepted press or reset.
-    always @(posedge clk or posedge board_reset) begin
-        if (board_reset)
-            {Dispense, ReturnNickel, ReturnDime, ReturnTwoDimes} <= 4'b0000;
-        else if (insert_coin)
-            {Dispense, ReturnNickel, ReturnDime, ReturnTwoDimes} <= result;
-    end
 endmodule

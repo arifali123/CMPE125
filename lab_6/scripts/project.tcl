@@ -27,14 +27,13 @@ foreach {fileset folder pattern} {sources_1 rtl *.v constrs_1 constraints *.xdc 
     }
 }
 set_property file_type {Memory Initialization Files} [get_files [file join $lab_dir sim test_vector.tv]]
-# XSim opens every enabled wave configuration. Keep the board view disabled
-# for the default core demo so it does not reference a different testbench.
-set_property is_enabled true [get_files [file join $lab_dir sim vending_machine.wcfg]]
-set_property is_enabled false [get_files [file join $lab_dir sim vending_machine_board.wcfg]]
+# The default simulation now demonstrates the same PDF design used on the board.
+set_property is_enabled false [get_files [file join $lab_dir sim vending_machine.wcfg]]
+set_property is_enabled true [get_files [file join $lab_dir sim vending_machine_board.wcfg]]
 set_property top vending_machine_board [get_filesets sources_1]
-set_property top vending_machine_tb [get_filesets sim_1]
-set_property xsim.view [file join $lab_dir sim vending_machine.wcfg] [get_filesets sim_1]
+set_property top vending_machine_board_tb [get_filesets sim_1]
+set_property xsim.view [file join $lab_dir sim vending_machine_board.wcfg] [get_filesets sim_1]
 set_property xsim.simulate.runtime all [get_filesets sim_1]
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
-puts "Lab 6 ready: simulate vending_machine_tb first; generate the vending_machine_board bitstream for Basys 3."
+puts "Lab 6 ready: simulate vending_machine_board_tb (PDF FSM), then generate the vending_machine_board bitstream."

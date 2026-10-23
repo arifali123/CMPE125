@@ -11,7 +11,7 @@ set_property -dict { PACKAGE_PIN V16 IOSTANDARD LVCMOS33 } [get_ports Dime]
 set_property -dict { PACKAGE_PIN W16 IOSTANDARD LVCMOS33 } [get_ports Quarter]
 set_property -dict { PACKAGE_PIN W17 IOSTANDARD LVCMOS33 } [get_ports reset]
 
-# Center pushbutton accepts the selected coin once per debounced press.
+# Center pushbutton accepts the selected coin on its sampled rising edge.
 set_property -dict { PACKAGE_PIN U18 IOSTANDARD LVCMOS33 } [get_ports button]
 
 # LED0 = two dimes, LED1 = dime, LED2 = nickel, LED3 = dispense.
@@ -20,8 +20,8 @@ set_property -dict { PACKAGE_PIN E19 IOSTANDARD LVCMOS33 } [get_ports ReturnDime
 set_property -dict { PACKAGE_PIN U19 IOSTANDARD LVCMOS33 } [get_ports ReturnNickel]
 set_property -dict { PACKAGE_PIN V19 IOSTANDARD LVCMOS33 } [get_ports Dispense]
 
-# Human controls have no clock relationship; each enters a synchronizer.
-# Paths BETWEEN synchronizer stages and all internal logic remain timed.
+# Human controls have no clock relationship (sampled directly as in the PDF).
+# These exceptions do not add synchronization or debounce to the PDF circuit.
 set_false_path -from [get_ports {button Nickel Dime Quarter reset}]
 # LEDs are static indicators with no external synchronous receiver.
 set_false_path -to [get_ports {Dispense ReturnNickel ReturnDime ReturnTwoDimes}]

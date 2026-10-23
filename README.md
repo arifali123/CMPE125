@@ -30,7 +30,7 @@ Board pin reference: [Digilent Basys 3 Master XDC](https://github.com/Digilent/d
 | 3 | `seven_segment_decoder` | `seven_segment_decoder_tb` |
 | 4 | `CLA4` | `CLA4_tb` |
 | 5 | `CLA4` | `self_check_tb`, `test_vector_tb` |
-| 6 | `vending_machine` | `vending_machine_tb` |
+| 6 | `vending_machine_board` | `vending_machine_board_tb` |
 
 ### Lab 3: seven-segment decoder
 
@@ -76,14 +76,14 @@ See [Lab 5 notes](lab_5/notes/README.md) for the vectors and simulation details.
 ./lab open lab_6
 ```
 
-Five-state Mealy controller for a 25-cent soda, accepting nickels, dimes, and
-quarters and returning 5, 10, 15, or 20 cents as needed. Run Behavioral
-Simulation to check 228 file-driven vectors covering every state/input
-combination, consecutive purchases, and asynchronous reset.
-The same project includes a Basys 3 board wrapper and pin constraints:
-after simulation, generate the `vending_machine_board` bitstream. Select a coin
+The default is the supplied PDF's button-driven vending machine for a 25-cent
+soda. Run Behavioral Simulation to check the same design used on the board,
+including both PDF examples and all 15 single-coin transitions.
+After simulation, generate the `vending_machine_board` bitstream. Select a coin
 with SW0–SW2, press the center button once per coin, and use SW3 for reset.
-LEDs 0–3 retain the dispense/change result until the next accepted press.
+LEDs 0–3 retain the dispense/change result until the next press or reset.
+The PDF code samples controls directly and has no debounce. The original
+Mealy controller and its 228-vector testbench remain available separately.
 See [Lab 6 notes](lab_6/notes/README.md) for the simulation workflow and
 [design report](lab_6/notes/report.md) for the diagrams, tables, and equations.
 

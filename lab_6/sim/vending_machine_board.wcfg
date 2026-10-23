@@ -12,7 +12,7 @@
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="16000.000 ns"></ZoomEndTime>
+      <ZoomEndTime time="220.000 ns"></ZoomEndTime>
       <Cursor1Time time="0.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
@@ -40,7 +40,7 @@
       <obj_property name="ElementShortName">Quarter</obj_property>
       <obj_property name="ObjectShortName">Quarter</obj_property>
    </wvobject>
-   <wvobject type="array" fp_name="/vending_machine_board_tb/uut/controller/state">
+   <wvobject type="array" fp_name="/vending_machine_board_tb/uut/state">
       <obj_property name="ElementShortName">state[2:0]</obj_property>
       <obj_property name="ObjectShortName">state[2:0]</obj_property>
    </wvobject>
@@ -64,8 +64,8 @@
       <obj_property name="ElementShortName">button</obj_property>
       <obj_property name="ObjectShortName">button</obj_property>
    </wvobject>
-   <wvobject type="logic" fp_name="/vending_machine_board_tb/uut/insert_coin">
-      <obj_property name="ElementShortName">insert_coin</obj_property>
-      <obj_property name="ObjectShortName">insert_coin</obj_property>
+   <wvobject type="logic" fp_name="/vending_machine_board_tb/uut/button_prev">
+      <obj_property name="ElementShortName">button_prev</obj_property>
+      <obj_property name="ObjectShortName">button_prev</obj_property>
    </wvobject>
 </wave_config>

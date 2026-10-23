@@ -1,5 +1,5 @@
 # Optional core-only synthesis check; invoke from lab_6/build.
-# Use bitstream.tcl for the board wrapper, constraints, and full implementation.
+# Use bitstream.tcl for the PDF board design, constraints, and full implementation.
 set lab_dir [file normalize [file join [file dirname [info script]] ..]]
 read_verilog [file join $lab_dir rtl vending_machine.v]
 synth_design -top vending_machine -part xc7a35tcpg236-1
