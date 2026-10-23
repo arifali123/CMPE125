@@ -19,7 +19,7 @@ if {[llength [get_projects -quiet]] > 0} {
 }
 set_property target_language Verilog [current_project]
 set_property target_simulator XSim [current_project]
-foreach {fileset folder pattern} {sources_1 rtl *.v sim_1 sim *} {
+foreach {fileset folder pattern} {sources_1 rtl *.v constrs_1 constraints *.xdc sim_1 sim *} {
     foreach source_file [glob -directory [file join $lab_dir $folder] $pattern] {
         if {![llength [get_files -quiet -of_objects [get_filesets $fileset] $source_file]]} {
             add_files -norecurse -fileset $fileset $source_file
@@ -27,10 +27,14 @@ foreach {fileset folder pattern} {sources_1 rtl *.v sim_1 sim *} {
     }
 }
 set_property file_type {Memory Initialization Files} [get_files [file join $lab_dir sim test_vector.tv]]
-set_property top vending_machine [get_filesets sources_1]
+# XSim opens every enabled wave configuration. Keep the board view disabled
+# for the default core demo so it does not reference a different testbench.
+set_property is_enabled true [get_files [file join $lab_dir sim vending_machine.wcfg]]
+set_property is_enabled false [get_files [file join $lab_dir sim vending_machine_board.wcfg]]
+set_property top vending_machine_board [get_filesets sources_1]
 set_property top vending_machine_tb [get_filesets sim_1]
 set_property xsim.view [file join $lab_dir sim vending_machine.wcfg] [get_filesets sim_1]
 set_property xsim.simulate.runtime all [get_filesets sim_1]
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
-puts "Lab 6 ready. Run Behavioral Simulation to verify the vending machine."
+puts "Lab 6 ready: simulate vending_machine_tb first; generate the vending_machine_board bitstream for Basys 3."

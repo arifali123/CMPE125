@@ -80,6 +80,10 @@ Five-state Mealy controller for a 25-cent soda, accepting nickels, dimes, and
 quarters and returning 5, 10, 15, or 20 cents as needed. Run Behavioral
 Simulation to check 228 file-driven vectors covering every state/input
 combination, consecutive purchases, and asynchronous reset.
+The same project includes a Basys 3 board wrapper and pin constraints:
+after simulation, generate the `vending_machine_board` bitstream. Select a coin
+with SW0–SW2, press the center button once per coin, and use SW3 for reset.
+LEDs 0–3 retain the dispense/change result until the next accepted press.
 See [Lab 6 notes](lab_6/notes/README.md) for the simulation workflow and
 [design report](lab_6/notes/report.md) for the diagrams, tables, and equations.
 
