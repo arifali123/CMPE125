@@ -92,13 +92,13 @@ See [Lab 6 notes](lab_6/notes/README.md) for the simulation workflow and
 ### Lab 7: 32-bit ALU
 
 ```sh
-./lab open lab7
+./lab open lab_7
 ```
 
 The ALU uses eight copies of the Lab 4 CLA block for addition, subtraction,
 logic operations, and signed set-less-than, with carry, overflow, and zero
 outputs. Run Behavioral Simulation to check all operations and corner cases.
-See [Lab 7 notes](lab7/notes/README.md) for control definitions and batch checks.
+See [Lab 7 notes](lab_7/notes/README.md) for control definitions and batch checks.
 
 ## Homework 4: sequential logic and FSMs
 

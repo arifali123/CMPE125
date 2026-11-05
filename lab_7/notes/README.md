@@ -3,7 +3,7 @@
 Open from the repository root:
 
 ```sh
-./lab open lab7
+./lab open lab_7
 ```
 
 Run **Behavioral Simulation** with simulation top `alu32_tb`. The design top
@@ -70,9 +70,9 @@ such as `80000000` and `7fffffff`.
 From the repository root, with Vivado on PATH:
 
 ```sh
-mkdir -p lab7/build
-(cd lab7/build && vivado -mode batch -source ../scripts/verify.tcl)
-(cd lab7/build && vivado -mode batch -source ../scripts/synthesize.tcl)
+mkdir -p lab_7/build
+(cd lab_7/build && vivado -mode batch -source ../scripts/verify.tcl)
+(cd lab_7/build && vivado -mode batch -source ../scripts/synthesize.tcl)
 ```
 
 The testbench checks 17,618 cases: 18 hand-calculated examples, all eight
@@ -81,7 +81,7 @@ all eight controls for 2,048 random pairs. It checks Y, carry, overflow,
 and zero on every case. Its arithmetic model uses widened signed math
 instead of the design's overflow equation.
 
-Simulation logs and waveforms are under `build/lab7/lab7.sim/sim_1/behav/xsim/`.
+Simulation logs and waveforms are under `build/lab_7/lab_7.sim/sim_1/behav/xsim/`.
 Synthesis produces `build/utilization.txt` and `build/alu32.dcp`.
 Generated files are ignored by Git. Capture compilation and waveform
 screenshots in Vivado for the lab report required by the handout.

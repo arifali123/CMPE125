@@ -1,5 +1,5 @@
 set lab_dir [file normalize [file join [file dirname [info script]] ..]]
-set project_name lab7
+set project_name lab_7
 set project_dir [file join $lab_dir build $project_name]
 set project_file [file join $project_dir $project_name.xpr]
 
