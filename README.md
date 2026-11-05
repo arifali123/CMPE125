@@ -77,8 +77,9 @@ See [Lab 5 notes](lab_5/notes/README.md) for the vectors and simulation details.
 ```
 
 The default is the supplied PDF's button-driven vending machine for a 25-cent
-soda. Run Behavioral Simulation to check the same design used on the board,
-including both PDF examples and all 15 single-coin transitions.
+soda. Run Behavioral Simulation to check the same design used on the board:
+a matrix-style testbench replays both PDF examples, then sweeps all 15
+state/coin cells and all 40 state/input combinations.
 After simulation, generate the `vending_machine` bitstream. Select a coin
 with SW0–SW2, press the center button once per coin, and use SW3 for reset.
 LEDs 0–3 retain the dispense/change result until the next press or reset.

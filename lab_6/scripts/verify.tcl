@@ -5,7 +5,7 @@ set log_file [file join $project_dir ${project_name}.sim sim_1 behav xsim simula
 set log_handle [open $log_file r]
 set transcript [read $log_handle]
 close $log_handle
-if {![string match "*PASS: PDF board FSM:*" $transcript] || [regexp {Fatal:|FATAL:|ERROR|FAIL:} $transcript]} {
+if {![string match "*PASS: matrix testbench:*" $transcript] || [regexp {Fatal:|FATAL:|ERROR|FAIL:} $transcript]} {
     error "vending_machine_tb failed; see $log_file."
 }
 close_project

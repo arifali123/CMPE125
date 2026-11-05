@@ -17,16 +17,19 @@ There is one design file and one testbench for both simulation and the board.
 
 Choose **Run Simulation > Run Behavioral Simulation**. The default simulation
 top is `vending_machine_tb`, so it demonstrates the same code you will
-program onto the board. The waveform opens at 0–220 ns to show the two PDF
+program onto the board. The waveform opens at 0–200 ns to show the two PDF
 examples. Outputs are registered: inspect them after the accepting rising
 clock edge. They remain asserted after the coin and button are released.
 
-The [testbench](../sim/vending_machine_tb.v) checks the PDF's nickel +
-quarter and dime + dime + nickel examples, then checks all 15 single-coin
-transitions using an arithmetic reference. It also checks holding a button,
-held LED results, asynchronous reset, switches without a press, empty coin
-selection, and the PDF's nickel/dime/quarter priority when several switches
-are selected. Failed checks stop with `$fatal`.
+The [testbench](../sim/vending_machine_tb.v) is matrix-style. It first replays
+the PDF's nickel + quarter and dime + dime + nickel examples with the PDF
+timing, so the opening waveform is unchanged. It then walks a literal 5x3
+transition matrix (S0-S4 by nickel/dime/quarter) and finally all 40
+state/input combinations (5 states by 8 coin selections). The expected next
+state and LED result come from the matrix itself rather than arithmetic. It
+also checks holding a button, held LED results, asynchronous reset, switches
+without a press, empty coin selection, and the PDF's nickel/dime/quarter
+priority when several switches are selected. Failed checks stop with `$fatal`.
 
 ## Program the Basys 3
 

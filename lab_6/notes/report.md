@@ -96,17 +96,20 @@ still requires testing after programming.
 
 ## Verification
 
-The single testbench reproduces both PDF transactions and their timing:
+The single testbench is matrix-style. Phase 1 reproduces both PDF
+transactions and their exact input timing, so the opening waveform matches the
+supplied reference:
 
 - Nickel followed by quarter: soda plus 5 cents change (`1100`).
 - Dime, dime, nickel: soda with no change (`1000`).
 
-Additional checks visit all five credit states and try each coin, covering
-all 15 single-coin transitions. An independent arithmetic reference computes
-the next credit and change from cents. All change amounts (0, 5, 10, 15,
-and 20 cents) are exercised. Tests also check held buttons, held outputs,
-asynchronous reset, coin switches without a button press, empty selections,
-and priority for multiple selected coins. Failures stop with `$fatal`.
+Phase 2 drives the transition matrix. A literal 5x3 matrix indexed by credit
+state and coin stores the expected next state and LED result, and the sweep
+visits all 15 cells. All eight coin selections are then applied in every
+state, covering all 40 state/input combinations. That exercises each change
+amount (0, 5, 10, 15, and 20 cents), the PDF's nickel/dime/quarter priority,
+and empty presses. Tests also check held buttons, held outputs, asynchronous
+reset, and coin switches without a button press. Failures stop with `$fatal`.
 
 Run the testbench from the repository root:
 
@@ -120,7 +123,10 @@ The expected successful transcript is:
 ```text
 Test 1 PASS: Soda and 5 cents change
 Test 2 PASS: Soda and no change
-PASS: PDF board FSM: both PDF examples, all 15 coin transitions, held outputs/button, reset, switch isolation, and input priority.
+matrix[0][0] PASS: next=S1 outputs=0000
+...
+PASS: matrix testbench: 137 checks, 15/15 matrix cells, 40/40 state/input combinations,
+      PDF reference transactions, held button/result, asynchronous reset, and input priority.
 ```
 
 Build and check the implementation with:
