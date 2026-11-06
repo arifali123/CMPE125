@@ -34,8 +34,7 @@ module alu32 (
     assign Y = (F[1:0] == 2'b00) ? (A & BB) :
                (F[1:0] == 2'b01) ? (A | BB) :
                (F[1:0] == 2'b10) ? S :
-               (F == 3'b111) ? {31'b0, ~C_out} : // Unsigned SLT: subtraction borrow.
-               {31'b0, S[31]}; // F=011 retains the original top-bit selection.
+               {31'b0, (A < B)}; // Unsigned SLT for both F=011 and F=111.
 
     assign Zero = (Y == 32'b0);
 endmodule
