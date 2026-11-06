@@ -6,7 +6,7 @@ module basys_alu_tb;
     reg [3:0] expected_y;
     reg expected_c, expected_overflow, expected_zero;
     reg [10:0] expected_led;
-    integer a, b, f, signed_a, signed_b, result, sum;
+    integer a, b, f, sum;
     integer errors, tests;
 
     basys_alu uut (.sw(sw), .led(led));
@@ -38,37 +38,38 @@ module basys_alu_tb;
         errors = 0;
         tests = 0;
 
-        check_example(4'h3, 4'h5, 3'b111, 4'h1, 0, 0); // S = E: sign 1
-        check_example(4'h5, 4'h3, 3'b111, 4'h0, 1, 0); // S = 2: sign 0
-        check_example(4'h7, 4'h8, 3'b111, 4'h1, 0, 1); // S = F: sign 1
-        check_example(4'h8, 4'h7, 3'b111, 4'h0, 1, 1); // S = 1: sign 0
-        check_example(4'h7, 4'h1, 3'b011, 4'h1, 0, 1); // S = 8: sign 1
-        check_example(4'h8, 4'h8, 3'b011, 4'h0, 1, 1); // S = 0: sign 0
+        check_example(4'h3, 4'h5, 3'b111, 4'h1, 0, 1); // S = E: top bit 1
+        check_example(4'h5, 4'h3, 3'b111, 4'h0, 1, 0); // S = 2: top bit 0
+        check_example(4'h7, 4'h8, 3'b111, 4'h1, 0, 1); // S = F: top bit 1
+        check_example(4'h8, 4'h7, 3'b111, 4'h0, 1, 0); // S = 1: top bit 0
+        check_example(4'h7, 4'h1, 3'b011, 4'h1, 0, 0); // S = 8: top bit 1
+        check_example(4'h8, 4'h8, 3'b011, 4'h0, 1, 1); // S = 0: top bit 0
         check_example(4'h5, 4'h2, 3'b110, 4'h3, 1, 0); // Subtraction unchanged
-        check_example(4'h7, 4'h1, 3'b010, 4'h8, 0, 1); // Addition unchanged
+        check_example(4'h7, 4'h1, 3'b010, 4'h8, 0, 0); // Addition unchanged
+
+        check_example(4'hf, 4'h1, 3'b010, 4'h0, 1, 1); // 15 + 1 wraps to 0
+        check_example(4'h2, 4'h5, 3'b110, 4'hd, 0, 1); // 2 - 5 wraps to 13
+        check_example(4'h0, 4'hf, 3'b111, 4'h0, 0, 1); // S=1: top bit 0
+        check_example(4'hf, 4'h0, 3'b111, 4'h1, 1, 0); // S=F: top bit 1
 
         // Exhaustive check of the actual board top, including all LED wiring.
         for (f = 0; f < 8; f = f + 1) begin
             for (a = 0; a < 16; a = a + 1) begin
                 for (b = 0; b < 16; b = b + 1) begin
                     sw = {f[2:0], b[3:0], a[3:0]};
-                    signed_a = (a >= 8) ? a - 16 : a;
-                    signed_b = (b >= 8) ? b - 16 : b;
                     if (f[2]) begin
-                        result = signed_a - signed_b;
                         sum = a + (15 - b) + 1;
                     end else begin
-                        result = signed_a + signed_b;
                         sum = a + b;
                     end
                     expected_c = (sum >= 16);
-                    expected_overflow = (result > 7) || (result < -8);
+                    expected_overflow = f[2] ? (a < b) : (sum > 15);
                     case (f[1:0])
                         2'b00: expected_y = f[2] ? (a & ~b) : (a & b);
                         2'b01: expected_y = f[2] ? (a | ~b) : (a | b);
-                        2'b10: expected_y = result[3:0];
+                        2'b10: expected_y = sum[3:0];
                         // Zero-extend bit 3 of the four-bit result, as drawn.
-                        2'b11: expected_y = {3'b000, result[3]};
+                        2'b11: expected_y = {3'b000, sum[3]};
                     endcase
                     expected_zero = (expected_y == 0);
                     expected_led = {expected_c, expected_overflow, expected_zero,

@@ -17,12 +17,13 @@ module alu4 (
     CLA4 adder (.A(A), .B(BB), .Ci(F[2]), .S(S),
                 .Co(C_out), .PG(PG), .GG(GG));
 
-    assign Overflow = (~(A[3] ^ BB[3])) & (A[3] ^ S[3]);
+    // Unsigned addition: carry. Unsigned subtraction: borrow.
+    assign Overflow = F[2] ? ~C_out : C_out;
 
     assign Y = (F[1:0] == 2'b00) ? (A & BB) :
                (F[1:0] == 2'b01) ? (A | BB) :
                (F[1:0] == 2'b10) ? S :
-               {3'b000, S[3]}; // Mux input 3: zero-extend the sum's sign bit.
+               {3'b000, S[3]}; // Mux input 3: zero-extend the sum's top bit.
 
     assign Zero = (Y == 4'b0000);
 endmodule

@@ -28,12 +28,13 @@ module alu32 (
     CLA4 adder7 (.A(A[31:28]), .B(BB[31:28]), .Ci(C[7]), .S(S[31:28]), .Co(C[8]), .PG(PG[7]), .GG(GG[7]));
 
     assign C_out = C[8];
-    assign Overflow = (~(A[31] ^ BB[31])) & (A[31] ^ S[31]);
+    // Unsigned addition: carry. Unsigned subtraction: borrow.
+    assign Overflow = F[2] ? ~C_out : C_out;
 
     assign Y = (F[1:0] == 2'b00) ? (A & BB) :
                (F[1:0] == 2'b01) ? (A | BB) :
                (F[1:0] == 2'b10) ? S :
-               {31'b0, S[31]}; // Mux input 3: zero-extend the sum's sign bit.
+               {31'b0, S[31]}; // Mux input 3: zero-extend the sum's top bit.
 
     assign Zero = (Y == 32'b0);
 endmodule

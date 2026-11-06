@@ -33,32 +33,26 @@ module alu32_tb;
         end
     endtask
 
-    // Independent arithmetic model: signed 33-bit math preserves overflow.
+    // Unsigned model: widened addition; subtraction underflows when a < b.
     task check_model;
         input [31:0] a, b;
         input [2:0] f;
-        reg signed [32:0] signed_a, signed_b, result;
         reg [32:0] unsigned_sum;
         reg [31:0] expected_y;
         reg expected_overflow;
         begin
-            signed_a = {a[31], a};
-            signed_b = {b[31], b};
             if (f[2]) begin
-                result = signed_a - signed_b;
                 unsigned_sum = {1'b0, a} + {1'b0, ~b} + 33'd1;
             end else begin
-                result = signed_a + signed_b;
                 unsigned_sum = {1'b0, a} + {1'b0, b};
             end
-            expected_overflow = (result > 33'sd2147483647) ||
-                                (result < -33'sd2147483648);
+            expected_overflow = f[2] ? (a < b) : (unsigned_sum > 33'h0ffffffff);
             case (f[1:0])
                 2'b00: expected_y = f[2] ? (a & ~b) : (a & b);
                 2'b01: expected_y = f[2] ? (a | ~b) : (a | b);
-                2'b10: expected_y = result[31:0];
-                // The schematic selects the sign of the wrapped 32-bit sum.
-                2'b11: expected_y = {31'b0, result[31]};
+                2'b10: expected_y = unsigned_sum[31:0];
+                // The schematic selects the top bit of the wrapped sum.
+                2'b11: expected_y = {31'b0, unsigned_sum[31]};
             endcase
             check(a, b, f, expected_y, unsigned_sum[32], expected_overflow);
         end
@@ -72,27 +66,27 @@ module alu32_tb;
         B = 0;
         F = 0;
 
-        // Hand-calculated results, including both signed overflow directions.
+        // Literal results, including unsigned carry and borrow.
         check(32'h00000005, 32'h00000003, 3'b000, 32'h00000001, 0, 0);
         check(32'h00000005, 32'h00000003, 3'b001, 32'h00000007, 0, 0);
         check(32'h00000003, 32'h00000004, 3'b010, 32'h00000007, 0, 0);
         check(32'h00000005, 32'h00000002, 3'b110, 32'h00000003, 1, 0);
-        check(32'h00000002, 32'h00000005, 3'b110, 32'hfffffffd, 0, 0);
+        check(32'h00000002, 32'h00000005, 3'b110, 32'hfffffffd, 0, 1);
         check(32'h00000005, 32'h00000005, 3'b110, 32'h00000000, 1, 0);
-        check(32'h7fffffff, 32'h00000001, 3'b010, 32'h80000000, 0, 1);
+        check(32'h7fffffff, 32'h00000001, 3'b010, 32'h80000000, 0, 0);
         check(32'h80000000, 32'h80000000, 3'b010, 32'h00000000, 1, 1);
-        check(32'hffffffff, 32'h00000001, 3'b010, 32'h00000000, 1, 0);
-        check(32'h80000000, 32'h00000001, 3'b110, 32'h7fffffff, 1, 1);
+        check(32'hffffffff, 32'h00000001, 3'b010, 32'h00000000, 1, 1);
+        check(32'h80000000, 32'h00000001, 3'b110, 32'h7fffffff, 1, 0);
         check(32'h7fffffff, 32'hffffffff, 3'b110, 32'h80000000, 0, 1);
-        check(32'h00000003, 32'h00000005, 3'b111, 32'h00000001, 0, 0);
+        check(32'h00000003, 32'h00000005, 3'b111, 32'h00000001, 0, 1);
         check(32'h00000005, 32'h00000003, 3'b111, 32'h00000000, 1, 0);
-        // Mux input 3 is S[31], even when Overflow=1 (no XOR correction).
-        check(32'h80000000, 32'h7fffffff, 3'b111, 32'h00000000, 1, 1);
+        // Mux input 3 is the raw S[31], independently of carry/borrow.
+        check(32'h80000000, 32'h7fffffff, 3'b111, 32'h00000000, 1, 0);
         check(32'h7fffffff, 32'h80000000, 3'b111, 32'h00000001, 0, 1);
         check(32'h00000005, 32'h00000003, 3'b100, 32'h00000004, 1, 0);
         check(32'h00000005, 32'h00000003, 3'b101, 32'hfffffffd, 1, 0);
         check(32'h80000000, 32'h00000000, 3'b011, 32'h00000001, 0, 0);
-        check(32'h7fffffff, 32'h00000001, 3'b011, 32'h00000001, 0, 1);
+        check(32'h7fffffff, 32'h00000001, 3'b011, 32'h00000001, 0, 0);
         check(32'h80000000, 32'h80000000, 3'b011, 32'h00000000, 1, 1);
 
         corners[0] = 32'h00000000;
