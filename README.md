@@ -100,7 +100,8 @@ for the required board demonstration. Generate its bitstream and program the
 Basys 3 through Hardware Manager. The default testbench `basys_alu_tb` checks
 all 2,048 switch combinations. The 32-bit ALU and its `alu32_tb` remain in the
 same project for the written lab's simulation requirement. Both widths reuse
-the Lab 4 CLA and support logic, addition, subtraction, and signed SLT.
+the Lab 4 CLA and support logic, addition, subtraction, and the schematic's
+zero-extended sum sign bit on mux input 3. Overflow is reported separately.
 See [Lab 7 notes](lab_7/notes/README.md) for control definitions and batch checks.
 
 ## Homework 4: sequential logic and FSMs

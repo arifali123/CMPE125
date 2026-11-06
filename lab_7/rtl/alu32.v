@@ -12,7 +12,6 @@ module alu32 (
     wire [31:0] BB, S;
     wire [8:0] C;
     wire [7:0] PG, GG;
-    wire Less;
 
     // F[2] selects B or its complement, and supplies the carry in.
     assign BB = F[2] ? ~B : B;
@@ -31,13 +30,10 @@ module alu32 (
     assign C_out = C[8];
     assign Overflow = (~(A[31] ^ BB[31])) & (A[31] ^ S[31]);
 
-    // Correct the sign bit when signed subtraction overflows.
-    assign Less = S[31] ^ Overflow;
-
     assign Y = (F[1:0] == 2'b00) ? (A & BB) :
                (F[1:0] == 2'b01) ? (A | BB) :
                (F[1:0] == 2'b10) ? S :
-               {31'b0, Less};
+               {31'b0, S[31]}; // Mux input 3: zero-extend the sum's sign bit.
 
     assign Zero = (Y == 32'b0);
 endmodule

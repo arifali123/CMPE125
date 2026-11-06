@@ -57,7 +57,8 @@ module alu32_tb;
                 2'b00: expected_y = f[2] ? (a & ~b) : (a & b);
                 2'b01: expected_y = f[2] ? (a | ~b) : (a | b);
                 2'b10: expected_y = result[31:0];
-                2'b11: expected_y = {31'b0, result[32]};
+                // The schematic selects the sign of the wrapped 32-bit sum.
+                2'b11: expected_y = {31'b0, result[31]};
             endcase
             check(a, b, f, expected_y, unsigned_sum[32], expected_overflow);
         end
@@ -85,11 +86,14 @@ module alu32_tb;
         check(32'h7fffffff, 32'hffffffff, 3'b110, 32'h80000000, 0, 1);
         check(32'h00000003, 32'h00000005, 3'b111, 32'h00000001, 0, 0);
         check(32'h00000005, 32'h00000003, 3'b111, 32'h00000000, 1, 0);
-        check(32'h80000000, 32'h7fffffff, 3'b111, 32'h00000001, 1, 1);
-        check(32'h7fffffff, 32'h80000000, 3'b111, 32'h00000000, 0, 1);
+        // Mux input 3 is S[31], even when Overflow=1 (no XOR correction).
+        check(32'h80000000, 32'h7fffffff, 3'b111, 32'h00000000, 1, 1);
+        check(32'h7fffffff, 32'h80000000, 3'b111, 32'h00000001, 0, 1);
         check(32'h00000005, 32'h00000003, 3'b100, 32'h00000004, 1, 0);
         check(32'h00000005, 32'h00000003, 3'b101, 32'hfffffffd, 1, 0);
         check(32'h80000000, 32'h00000000, 3'b011, 32'h00000001, 0, 0);
+        check(32'h7fffffff, 32'h00000001, 3'b011, 32'h00000001, 0, 1);
+        check(32'h80000000, 32'h80000000, 3'b011, 32'h00000000, 1, 1);
 
         corners[0] = 32'h00000000;
         corners[1] = 32'h00000001;
