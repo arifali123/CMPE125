@@ -1,4 +1,4 @@
-# Lab 7: 32-bit ALU
+# Lab 7: ALU simulation and Basys 3 demonstration
 
 Open from the repository root:
 
@@ -6,14 +6,20 @@ Open from the repository root:
 ./lab open lab_7
 ```
 
-Run **Behavioral Simulation** with simulation top `alu32_tb`. The design top
-is `alu32`. Simulation runs for about 177 us and prints a final PASS or FAIL.
-Use Zoom Fit to see the entire waveform, or zoom in on the first 180 ns for
-the hand-calculated examples. There is no clock or reset: this is a
-combinational ALU using plain Verilog continuous assignments.
+The default design top is `basys_alu`, the required four-bit hardware demo.
+Run **Behavioral Simulation** with default simulation top `basys_alu_tb`
+to check every four-bit input and control combination (about 21 us).
+The original 32-bit design and `alu32_tb` remain in the project. To repeat
+that simulation, right-click `alu32_tb` and select **Set as Top**, then run
+Behavioral Simulation (about 177 us). Both testbenches print PASS or FAIL.
+There is no clock or reset: the ALUs use plain Verilog continuous assignments.
 
 ## Files
 
+- `rtl/alu4.v`: four-bit ALU using one Lab 4 CLA, matching the supplied example.
+- `rtl/basys_alu.v`: connects switches to the four-bit ALU and outputs to LEDs.
+- `constraints/basys3.xdc`: Basys 3 switch and LED pins.
+- `sim/basys_alu_tb.v`: exhaustive test of all 2,048 switch settings and LED outputs.
 - `rtl/alu32.v`: 32-bit ALU, built from eight four-bit CLA blocks.
 - `rtl/cla4.v`: exact copy of `lab_4/rtl/lab4_arif.v`, including its three modules.
 - `sim/alu32_tb.v`: self-checking testbench with literal examples, boundary
@@ -22,11 +28,59 @@ combinational ALU using plain Verilog continuous assignments.
 Only add this folder's RTL to the project. Adding Lab 4's original as well
 would define the same CLA modules twice.
 
-The lab handout requires a 32-bit ALU. The accompanying `Alu32.pdf` actually
-contains a four-bit example and an `Unsigned` testbench port absent from
-its design. This implementation uses the required 32-bit width and signed
-set-less-than, with no extra `Unsigned` input or four-bit board wrapper.
-The lab does not require board programming; this project has no pin constraints.
+The written handout requires a 32-bit ALU simulation, and the instructor also
+requires a four-bit Basys 3 demonstration. Both are included. The accompanying
+`Alu32.pdf` provides the four-bit ALU and board wrapper. Its testbench has an
+`Unsigned` port absent from its design; our ALUs use signed set-less-than
+with no extra `Unsigned` input.
+
+## Program and demonstrate the Basys 3
+
+1. Open with `./lab open lab_7`. If Vivado was already open before the board
+   files were added, close that project and run the command again to load them.
+2. Choose **Generate Bitstream** with design top `basys_alu`.
+3. Connect and power the board using its programming USB connection.
+4. Open **Hardware Manager > Open Target > Auto Connect > Program Device**.
+5. Select `lab_7/build/lab_7/lab_7.runs/impl_1/basys_alu.bit`.
+
+| Switches / LEDs | Meaning |
+|---|---|
+| SW3, SW2, SW1, SW0 | A, from most to least significant bit |
+| SW7, SW6, SW5, SW4 | B, from most to least significant bit |
+| SW10, SW9, SW8 | F, from most to least significant bit |
+| LED3, LED2, LED1, LED0 | Y, from most to least significant bit |
+| LED8 | Zero |
+| LED9 | Signed overflow |
+| LED10 | Carry out (no borrow for subtraction) |
+| LED7:4 | Always off |
+
+SW0 is the rightmost switch; up is 1, down is 0. No button press is needed:
+the LEDs respond when switches change. SW11 through SW15 are unused.
+The seven-segment display is unused. The mapping follows the supplied wrapper
+and [Digilent's master constraints](https://github.com/Digilent/digilent-xdc/blob/master/Basys-3-Master.xdc).
+
+Try these demonstrations. Read the input and output groups in the bit order
+shown above. A flag of 1 means that LED should light.
+
+| Operation | A (SW3:0) | B (SW7:4) | F (SW10:8) | Y (LED3:0) | Zero | Overflow | Carry |
+|---|---|---|---|---|---|---|---|
+| AND: 5 & 3 | 0101 | 0011 | 000 | 0001 | 0 | 0 | 0 |
+| OR: 5 OR 3 | 0101 | 0011 | 001 | 0111 | 0 | 0 | 0 |
+| Add: 3 + 4 | 0011 | 0100 | 010 | 0111 | 0 | 0 | 0 |
+| Subtract: 5 - 2 | 0101 | 0010 | 110 | 0011 | 0 | 0 | 1 |
+| Zero: 5 - 5 | 0101 | 0101 | 110 | 0000 | 1 | 0 | 1 |
+| Signed SLT: 3 < 5 | 0011 | 0101 | 111 | 0001 | 0 | 0 | 0 |
+| Signed overflow: 7 + 1 | 0111 | 0001 | 010 | 1000 | 0 | 1 | 0 |
+| Carry: -1 + 1 | 1111 | 0001 | 010 | 0000 | 1 | 0 | 1 |
+
+For example, for 5 - 2 turn on SW0, SW2, SW5, SW9, and SW10; leave all
+other used switches down. LED0, LED1, and LED10 should light.
+
+Four-bit signed numbers range from -8 to +7. Thus `1000` means -8 and
+`1111` means -1 when interpreted as signed. The LEDs always show raw bits.
+The four-bit demo computes its own four-bit overflow; it does not simply
+truncate the 32-bit ALU's output. Hardware behavior still needs to be checked
+on the physical board after programming.
 
 ## Controls and outputs
 
@@ -50,9 +104,9 @@ are not the usual MIPS arithmetic controls.
 `C_out` is the adder carry out. During subtraction it is 1 for no borrow.
 It is distinct from signed overflow. Like the supplied example, carry and
 overflow always describe the internal adder, even when Y selects logic or SLT.
-`Zero` is 1 exactly when the selected 32-bit Y is zero.
+`Zero` is 1 exactly when the selected Y is zero, at either width.
 
-The overflow Boolean equation is:
+The 32-bit overflow Boolean equation is (use bit 3 for the four-bit ALU):
 
 ```text
 Overflow = NOT(A[31] XOR BB[31]) AND (A[31] XOR S[31])
@@ -73,15 +127,25 @@ From the repository root, with Vivado on PATH:
 mkdir -p lab_7/build
 (cd lab_7/build && vivado -mode batch -source ../scripts/verify.tcl)
 (cd lab_7/build && vivado -mode batch -source ../scripts/synthesize.tcl)
+(cd lab_7/build && vivado -mode batch -source ../scripts/bitstream.tcl)
 ```
 
-The testbench checks 17,618 cases: 18 hand-calculated examples, all eight
+The 32-bit testbench checks 17,618 cases: 18 hand-calculated examples, all eight
 control codes for 144 boundary operand pairs, 64 carry/borrow cases, and
 all eight controls for 2,048 random pairs. It checks Y, carry, overflow,
 and zero on every case. Its arithmetic model uses widened signed math
 instead of the design's overflow equation.
 
+The board testbench separately checks all 2,048 combinations of two four-bit
+operands and three control bits, including every output LED. `verify.tcl`
+runs both testbenches and saves their transcripts as `build/alu32_tb.log`
+and `build/basys_alu_tb.log`.
+
 Simulation logs and waveforms are under `build/lab_7/lab_7.sim/sim_1/behav/xsim/`.
-Synthesis produces `build/utilization.txt` and `build/alu32.dcp`.
+The synthesis-only script checks the 32-bit core and produces
+`build/utilization.txt` and `build/alu32.dcp`. The bitstream script builds the
+four-bit board top and produces `build/board_utilization.txt` and
+`build/board_drc.txt`. This switch-to-LED circuit has no clock or synchronous
+timing requirement.
 Generated files are ignored by Git. Capture compilation and waveform
 screenshots in Vivado for the lab report required by the handout.

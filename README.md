@@ -31,7 +31,7 @@ Board pin reference: [Digilent Basys 3 Master XDC](https://github.com/Digilent/d
 | 4 | `CLA4` | `CLA4_tb` |
 | 5 | `CLA4` | `self_check_tb`, `test_vector_tb` |
 | 6 | `vending_machine` | `vending_machine_tb` |
-| 7 | `alu32` | `alu32_tb` |
+| 7 | `basys_alu` (4-bit board), `alu32` | `basys_alu_tb`, `alu32_tb` |
 
 ### Lab 3: seven-segment decoder
 
@@ -89,15 +89,18 @@ the board use the same single design and testbench.
 See [Lab 6 notes](lab_6/notes/README.md) for the simulation workflow and
 [design report](lab_6/notes/report.md) for the diagrams, tables, and equations.
 
-### Lab 7: 32-bit ALU
+### Lab 7: 32-bit ALU and 4-bit Basys 3 demo
 
 ```sh
 ./lab open lab_7
 ```
 
-The ALU uses eight copies of the Lab 4 CLA block for addition, subtraction,
-logic operations, and signed set-less-than, with carry, overflow, and zero
-outputs. Run Behavioral Simulation to check all operations and corner cases.
+The default top `basys_alu` connects a four-bit ALU to SW0-SW10 and LED0-LED10
+for the required board demonstration. Generate its bitstream and program the
+Basys 3 through Hardware Manager. The default testbench `basys_alu_tb` checks
+all 2,048 switch combinations. The 32-bit ALU and its `alu32_tb` remain in the
+same project for the written lab's simulation requirement. Both widths reuse
+the Lab 4 CLA and support logic, addition, subtraction, and signed SLT.
 See [Lab 7 notes](lab_7/notes/README.md) for control definitions and batch checks.
 
 ## Homework 4: sequential logic and FSMs

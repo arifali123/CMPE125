@@ -16,9 +16,9 @@ if {[llength [get_projects -quiet]] > 0} {
 
 set_property target_language Verilog [current_project]
 set_property target_simulator XSim [current_project]
-foreach {fileset folder} {sources_1 rtl sim_1 sim} {
+foreach {fileset folder pattern} {sources_1 rtl *.v sim_1 sim *.v constrs_1 constraints *.xdc} {
     set old_files [get_files -quiet -of_objects [get_filesets $fileset]]
-    set source_files [glob -directory [file join $lab_dir $folder] *.v]
+    set source_files [glob -directory [file join $lab_dir $folder] $pattern]
     foreach old_file $old_files {
         if {[lsearch -exact $source_files $old_file] < 0} {
             remove_files -fileset $fileset $old_file
@@ -30,8 +30,8 @@ foreach {fileset folder} {sources_1 rtl sim_1 sim} {
         }
     }
 }
-set_property top alu32 [get_filesets sources_1]
-set_property top alu32_tb [get_filesets sim_1]
+set_property top basys_alu [get_filesets sources_1]
+set_property top basys_alu_tb [get_filesets sim_1]
 set_property xsim.simulate.runtime 200us [get_filesets sim_1]
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
