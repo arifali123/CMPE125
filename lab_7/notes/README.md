@@ -31,11 +31,12 @@ would define the same CLA modules twice.
 The written handout requires a 32-bit ALU simulation, and the instructor also
 requires a four-bit Basys 3 demonstration. Both are included. The accompanying
 `Alu32.pdf` provides the four-bit ALU and board wrapper. Its testbench has an
-`Unsigned` port absent from its design. The TA's schematic is authoritative:
-mux input 3 zero-extends the raw top bit of the sum, with no overflow correction
-and no extra `Unsigned` input. Per the TA, operands are unsigned: 0 through
-15 on the board and 0 through 4,294,967,295 in the 32-bit core. The example
-PDF's signed overflow equation and corrected comparison are not used.
+`Unsigned` port absent from its design. Per the clarified lab requirement,
+F=111 implements unsigned SLT using subtraction borrow (`~C_out`) instead of
+the schematic's raw sum top bit. F=011 retains the pictured top-bit selection.
+Operands are unsigned: 0 through 15 on the board and 0 through 4,294,967,295
+in the 32-bit core. The example PDF's signed overflow equation and corrected
+signed comparison are not used. No extra `Unsigned` input is needed.
 
 ## Program and demonstrate the Basys 3
 
@@ -72,9 +73,12 @@ shown above. A flag of 1 means that LED should light.
 | Add: 3 + 4 | 0011 | 0100 | 010 | 0111 | 0 | 0 | 0 |
 | Subtract: 5 - 2 | 0101 | 0010 | 110 | 0011 | 0 | 0 | 1 |
 | Zero: 5 - 5 | 0101 | 0101 | 110 | 0000 | 1 | 0 | 1 |
-| Top bit of 3 - 5 | 0011 | 0101 | 111 | 0001 | 0 | 1 | 0 |
-| Top bit of 7 - 8 | 0111 | 1000 | 111 | 0001 | 0 | 1 | 0 |
-| Top bit of 8 - 7 | 1000 | 0111 | 111 | 0000 | 1 | 0 | 1 |
+| SLT: 3 < 5 | 0011 | 0101 | 111 | 0001 | 0 | 1 | 0 |
+| SLT: 7 < 8 | 0111 | 1000 | 111 | 0001 | 0 | 1 | 0 |
+| SLT: 8 < 7 (false) | 1000 | 0111 | 111 | 0000 | 1 | 0 | 1 |
+| SLT: 0 < 15 | 0000 | 1111 | 111 | 0001 | 0 | 1 | 0 |
+| SLT: 15 < 0 (false) | 1111 | 0000 | 111 | 0000 | 1 | 0 | 1 |
+| SLT: 5 < 5 (false) | 0101 | 0101 | 111 | 0000 | 1 | 0 | 1 |
 | Add: 7 + 1 | 0111 | 0001 | 010 | 1000 | 0 | 0 | 0 |
 | Carry: 15 + 1 | 1111 | 0001 | 010 | 0000 | 1 | 1 | 1 |
 | Borrow: 2 - 5 | 0010 | 0101 | 110 | 1101 | 0 | 1 | 0 |
@@ -102,20 +106,23 @@ The internal sum is `S = A + BB + F[2]`. `F[1:0]` selects the output:
 | 100 | A AND ~B |
 | 101 | A OR ~B |
 | 110 | A - B |
-| 111 | Zero-extended S[N-1] from A - B |
+| 111 | Unsigned SLT: 1 if A < B, otherwise 0 |
 
-All eight controls follow the schematic's mux wiring. For F[1:0]=11,
-Y is `{3'b000, S[3]}` on the board or `{31'b0, S[31]}` in the 32-bit core.
-This copies a bit; it does not declare or interpret a signed number.
-It is also not a general unsigned A<B comparison: for A=0, B=15, F=111,
-S=0001, so the diagram gives Y=0000 even though A<B. Implementing unsigned
-less-than would require changing the pictured connection to subtraction's
-borrow (`~C_out`). That is a different specification and is not assumed.
+For F=111, the adder subtracts B from A. A borrow means A<B, and with our
+adder borrow is `~C_out`. Y is therefore `{3'b000, ~C_out}` on the board or
+`{31'b0, ~C_out}` in the 32-bit core. For equal operands there is no borrow,
+so SLT outputs zero. The testbench checks this against unsigned `a < b`,
+independently of the carry implementation.
+
+The top bit alone cannot implement unsigned SLT. For example, 0 - 15 wraps
+to 0001, with top bit 0 but borrow 1. The required SLT result is 0001.
+For 15 - 0 the sum is 1111, but no borrow occurs, so SLT outputs 0000.
+F=011 keeps the original zero-extended sum top bit; it is not the SLT code.
 
 `C_out` is the adder carry out. During subtraction it is 1 for no borrow.
 Unsigned `Overflow` reports carry during addition and borrow during
 subtraction. These flags describe the internal arithmetic even when Y
-selects logic or the zero-extended top bit. `Zero` tests the selected Y.
+selects logic, unsigned SLT, or the zero-extended top bit. `Zero` tests the selected Y.
 
 The overflow Boolean equation, at either width, is:
 
@@ -126,8 +133,8 @@ Overflow = (NOT F[2] AND C_out) OR (F[2] AND NOT C_out)
 
 A single XOR gate with inputs F[2] and C_out implements this output.
 The Verilog expresses the same function as `F[2] ? ~C_out : C_out`.
-Overflow does not feed mux input 3. That input connects directly to
-S[N-1] through a zero extender, as drawn.
+For F=111, unsigned Overflow and the SLT bit are both subtraction borrow.
+Zero is still calculated from the selected Y, not from the internal sum.
 
 ## Batch verification
 
@@ -140,15 +147,15 @@ mkdir -p lab_7/build
 (cd lab_7/build && vivado -mode batch -source ../scripts/bitstream.tcl)
 ```
 
-The 32-bit testbench checks 17,620 cases: 20 hand-calculated examples, all eight
+The 32-bit testbench checks 17,623 cases: 23 hand-calculated examples, all eight
 control codes for 144 boundary operand pairs, 64 carry/borrow cases, and
 all eight controls for 2,048 random pairs. It checks Y, carry, overflow,
 and zero on every case. Its unsigned reference model checks
 addition against the width's maximum and subtraction against A<B.
 
-The board testbench first shows twelve literal examples in the waveform,
+The board testbench first shows thirteen literal examples in the waveform,
 including unsigned carry/borrow and top-bit selection, then checks all 2,048 combinations of two four-bit operands and
-three control bits (2,060 tests total), including every output LED. `verify.tcl`
+three control bits (2,061 tests total), including every output LED. `verify.tcl`
 runs both testbenches and saves their transcripts as `build/alu32_tb.log`
 and `build/basys_alu_tb.log`.
 

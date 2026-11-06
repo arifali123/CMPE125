@@ -11,7 +11,7 @@ module basys_alu_tb;
 
     basys_alu uut (.sw(sw), .led(led));
 
-    // Literal examples for the TA: mux input 3 uses S[3], not S[3] XOR OV.
+    // Literal unsigned SLT, arithmetic, and F=011 examples.
     task check_example;
         input [3:0] test_a, test_b;
         input [2:0] test_f;
@@ -38,10 +38,10 @@ module basys_alu_tb;
         errors = 0;
         tests = 0;
 
-        check_example(4'h3, 4'h5, 3'b111, 4'h1, 0, 1); // S = E: top bit 1
-        check_example(4'h5, 4'h3, 3'b111, 4'h0, 1, 0); // S = 2: top bit 0
-        check_example(4'h7, 4'h8, 3'b111, 4'h1, 0, 1); // S = F: top bit 1
-        check_example(4'h8, 4'h7, 3'b111, 4'h0, 1, 0); // S = 1: top bit 0
+        check_example(4'h3, 4'h5, 3'b111, 4'h1, 0, 1); // 3 < 5: true
+        check_example(4'h5, 4'h3, 3'b111, 4'h0, 1, 0); // 5 < 3: false
+        check_example(4'h7, 4'h8, 3'b111, 4'h1, 0, 1); // 7 < 8: true
+        check_example(4'h8, 4'h7, 3'b111, 4'h0, 1, 0); // 8 < 7: false
         check_example(4'h7, 4'h1, 3'b011, 4'h1, 0, 0); // S = 8: top bit 1
         check_example(4'h8, 4'h8, 3'b011, 4'h0, 1, 1); // S = 0: top bit 0
         check_example(4'h5, 4'h2, 3'b110, 4'h3, 1, 0); // Subtraction unchanged
@@ -49,8 +49,9 @@ module basys_alu_tb;
 
         check_example(4'hf, 4'h1, 3'b010, 4'h0, 1, 1); // 15 + 1 wraps to 0
         check_example(4'h2, 4'h5, 3'b110, 4'hd, 0, 1); // 2 - 5 wraps to 13
-        check_example(4'h0, 4'hf, 3'b111, 4'h0, 0, 1); // S=1: top bit 0
-        check_example(4'hf, 4'h0, 3'b111, 4'h1, 1, 0); // S=F: top bit 1
+        check_example(4'h0, 4'hf, 3'b111, 4'h1, 0, 1); // 0 < 15, despite S[3]=0
+        check_example(4'hf, 4'h0, 3'b111, 4'h0, 1, 0); // 15 is not < 0, despite S[3]=1
+        check_example(4'h5, 4'h5, 3'b111, 4'h0, 1, 0); // Equal operands: false
 
         // Exhaustive check of the actual board top, including all LED wiring.
         for (f = 0; f < 8; f = f + 1) begin
@@ -68,8 +69,9 @@ module basys_alu_tb;
                         2'b00: expected_y = f[2] ? (a & ~b) : (a & b);
                         2'b01: expected_y = f[2] ? (a | ~b) : (a | b);
                         2'b10: expected_y = sum[3:0];
-                        // Zero-extend bit 3 of the four-bit result, as drawn.
-                        2'b11: expected_y = {3'b000, sum[3]};
+                        // Compare operands independently of the DUT's carry logic.
+                        2'b11: expected_y = f[2] ? ((a < b) ? 4'd1 : 4'd0) :
+                                                  {3'b000, sum[3]};
                     endcase
                     expected_zero = (expected_y == 0);
                     expected_led = {expected_c, expected_overflow, expected_zero,

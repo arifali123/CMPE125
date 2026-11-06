@@ -23,7 +23,8 @@ module alu4 (
     assign Y = (F[1:0] == 2'b00) ? (A & BB) :
                (F[1:0] == 2'b01) ? (A | BB) :
                (F[1:0] == 2'b10) ? S :
-               {3'b000, S[3]}; // Mux input 3: zero-extend the sum's top bit.
+               (F == 3'b111) ? {3'b000, ~C_out} : // Unsigned SLT: subtraction borrow.
+               {3'b000, S[3]}; // F=011 retains the original top-bit selection.
 
     assign Zero = (Y == 4'b0000);
 endmodule
