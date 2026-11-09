@@ -1,0 +1,5 @@
+Figure 1. Vivado XSim waveforms for the structural 16-bit prefix adder. A, B, and S are hexadecimal. Cin and Cout are binary. Directed tests include zero, carry-in, full-width carry propagation, and carry-out. Examples: FFFF + 0001 + 0 = 1_0000; FFFF + FFFF + 1 = 1_FFFF; AAAA + 5555 + 1 = 1_0000; 1234 + 4321 + 0 = 0_5555.
+
+Figure 2. Vivado XSim waveforms for all 16 black-block input combinations, one per 10 ns from 0 to 160 ns. ph/gh are P_hi/G_hi; pl/gl are P_lo/G_lo; po/go are P_out/G_out. The outputs satisfy po = ph AND pl and go = gh OR (ph AND gl).
+
+Verification: the self-checking testbench passed all 404,042 adder tests, all 16 black-block combinations, and intermediate prefix checks. Screenshots were captured from the actual Vivado 2025.2 waveform viewer using the completed XSim WDB. Files ending in _waveforms.png are cropped for a report; files ending in _vivado_full.png preserve the complete application screenshot. Waveform intervals are testbench stimulus spacing, not measured hardware propagation delays.
