@@ -156,13 +156,13 @@ mkdir -p hw_4_2a/build
 Simulation logs and waveform databases are generated under each ignored `build/`
 directory. Sources are in `rtl/`; testbenches are in `sim/`.
 
-## Digital Building Blocks: question 2
+## Homework 5: Digital Building Blocks, question 2
 
-`hw_prefix_2` implements the supplied 16-bit prefix-adder diagram structurally,
+`hw_5` implements the supplied 16-bit prefix-adder diagram structurally,
 with a separate black-block module and four stages of eight blocks each.
-Open with `./lab open hw_prefix_2`, then run Behavioral Simulation.
+Open with `./lab open hw_5`, then run Behavioral Simulation.
 The self-checking testbench runs 404,042 additions and checks intermediate
-prefix groups. See [design and verification notes](hw_prefix_2/README.md)
+prefix groups. See [design and verification notes](hw_5/README.md)
 for the diagram mapping and batch simulation/synthesis command.
 
 ## Save and sync

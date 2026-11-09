@@ -2,7 +2,7 @@ source [file join [file dirname [info script]] project.tcl]
 launch_simulation -mode behavioral
 close_sim
 # Require the self-checking testbench to reach its success message.
-set sim_log [file join $project_dir hw_prefix_2.sim sim_1 behav xsim simulate.log]
+set sim_log [file join $project_dir hw_5.sim sim_1 behav xsim simulate.log]
 set channel [open $sim_log r]
 set sim_output [read $channel]
 close $channel

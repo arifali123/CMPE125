@@ -1,4 +1,4 @@
-# Digital Building Blocks, question 2: 16-bit prefix adder
+# Homework 5, question 2: 16-bit prefix adder
 
 `rtl/prefix16.v` structurally implements the attached figure. The separate
 `rtl/prefix_black.v` module is instantiated 32 times: eight black blocks in
@@ -39,7 +39,7 @@ its incoming carry; it does not add another black block to the pictured tree.
 From the repository root:
 
 ```sh
-./lab open hw_prefix_2
+./lab open hw_5
 ```
 
 Choose **Run Simulation > Run Behavioral Simulation**, then **Run All** if
@@ -47,8 +47,8 @@ needed. Expand `uut` to inspect `prefix_stage`, `p`, `g`, and `carry`.
 To run simulation and synthesis in batch mode:
 
 ```sh
-mkdir -p hw_prefix_2/build
-(cd hw_prefix_2/build && vivado -mode batch -source ../scripts/verify.tcl)
+mkdir -p hw_5/build
+(cd hw_5/build && vivado -mode batch -source ../scripts/verify.tcl)
 ```
 
 The testbench fails immediately on a mismatch and prints `PASS` only after:
@@ -78,16 +78,16 @@ Synthesis for `xc7a35tcpg236-1` completed with zero synthesis warnings or errors
 using 40 LUTs and no latches or flip-flops. Vivado optimizes the structural
 source into FPGA LUTs; inspect the RTL hierarchy to see the original tree.
 The batch transcript is `build/vivado.log`, the simulation transcript is
-`build/hw_prefix_2/hw_prefix_2.sim/sim_1/behav/xsim/simulate.log`, and resource
+`build/hw_5/hw_5.sim/sim_1/behav/xsim/simulate.log`, and resource
 counts are in `build/utilization.rpt` (generated files are ignored by Git).
 
 For Icarus Verilog, if installed:
 
 ```sh
-mkdir -p hw_prefix_2/build
-iverilog -g2005-sv -s prefix16_tb -o hw_prefix_2/build/prefix16_tb \
-  hw_prefix_2/rtl/prefix_black.v hw_prefix_2/rtl/prefix16.v hw_prefix_2/sim/prefix16_tb.v
-(cd hw_prefix_2/build && vvp prefix16_tb)
+mkdir -p hw_5/build
+iverilog -g2005-sv -s prefix16_tb -o hw_5/build/prefix16_tb \
+  hw_5/rtl/prefix_black.v hw_5/rtl/prefix16.v hw_5/sim/prefix16_tb.v
+(cd hw_5/build && vvp prefix16_tb)
 ```
 
 Add `+vcd` to `vvp prefix16_tb` to record only the introductory vectors in

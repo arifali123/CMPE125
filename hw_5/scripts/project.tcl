@@ -1,16 +1,16 @@
-# Open with ./lab open hw_prefix_2, or source this script in Vivado.
+# Open with ./lab open hw_5, or source this script in Vivado.
 set hw_dir [file normalize [file join [file dirname [info script]] ..]]
-set project_dir [file join $hw_dir build hw_prefix_2]
-set project_file [file join $project_dir hw_prefix_2.xpr]
+set project_dir [file join $hw_dir build hw_5]
+set project_file [file join $project_dir hw_5.xpr]
 if {[llength [get_projects -quiet]] > 0} {
     set current_file [file normalize [file join [get_property DIRECTORY [current_project]] [get_property NAME [current_project]].xpr]]
     if {$current_file ne $project_file} {
-        error "Close the current project before opening hw_prefix_2."
+        error "Close the current project before opening hw_5."
     }
 } elseif {[file exists $project_file]} {
     open_project $project_file
 } else {
-    create_project hw_prefix_2 $project_dir -part xc7a35tcpg236-1
+    create_project hw_5 $project_dir -part xc7a35tcpg236-1
 }
 set_property target_language Verilog [current_project]
 set_property target_simulator XSim [current_project]
@@ -26,4 +26,4 @@ set_property top prefix16_tb [get_filesets sim_1]
 set_property xsim.simulate.runtime all [get_filesets sim_1]
 update_compile_order -fileset sources_1
 update_compile_order -fileset sim_1
-puts "hw_prefix_2 ready. Run Behavioral Simulation to check prefix16."
+puts "hw_5 ready. Run Behavioral Simulation to check prefix16."
