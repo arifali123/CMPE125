@@ -33,8 +33,8 @@ requires a four-bit Basys 3 demonstration. Both are included. The accompanying
 `Alu32.pdf` provides the four-bit ALU and board wrapper. Its testbench has an
 `Unsigned` port absent from its design. Per the clarified lab requirement,
 both F=011 and F=111 implement unsigned A<B, independently of F[2]. The
-comparison uses the original unsigned operands directly instead of the
-schematic's raw sum top bit or a carry-dependent result.
+comparison performs a separate widened subtraction A + ~B + 1 and uses its
+borrow. The synthesizable ALUs use neither the less-than nor shift operator.
 Operands are unsigned: 0 through 15 on the board and 0 through 4,294,967,295
 in the 32-bit core. The example PDF's signed overflow equation and corrected
 signed comparison are not used. No extra `Unsigned` input is needed.
@@ -111,18 +111,33 @@ The internal sum is `S = A + BB + F[2]`. `F[1:0]` selects the output:
 | 110 | A - B |
 | 111 | Unsigned SLT: 1 if A < B, otherwise 0 |
 
-For F[1:0]=11, the ALU compares the original unsigned A and B directly.
-This works for both F=011 and F=111, even though the adder is adding in the
-first case and subtracting in the second. Y is `{3'b000, (A < B)}` on the
-board or `{31'b0, (A < B)}` in the 32-bit core. The zeros extend the one-bit
-comparison to the output width; true gives 1 and false gives 0. Equal
-operands give 0. F[2] still controls B inversion and carry-in for the other
-operations, but does not change the comparison result.
+For F[1:0]=11, SLT uses two's-complement subtraction, A + ~B + 1.
+The extra bit preserves carry; a carry of 0 means a borrow, so A is less
+than B. Four-bit code:
 
-For example, both F=011 and F=111 give 1 for A=0, B=15, and 0 for A=15,
-B=0. A sum top bit cannot perform this comparison. Subtraction borrow is
-equivalent to unsigned A<B only while subtracting; when F[2]=0 the adder's
-carry cannot be used for that purpose.
+```verilog
+wire [4:0] difference;
+wire Less;
+assign difference = {1'b0, A} + {1'b0, ~B} + 5'd1;
+assign Less = ~difference[4];
+```
+
+The 32-bit core uses a 33-bit difference and inverts bit 32. B is inverted
+at its original width before it is extended with a zero. This preserves
+the subtraction carry. The expression is A + ~B + 1, not A + ~B - 1.
+There is no less-than or shift operator in the design RTL.
+
+Y zero-extends Less as `{3'b000, Less}` on the board or `{31'b0, Less}`
+in the 32-bit core. True gives 1 and false gives 0. Equal operands give 0.
+This separate subtraction is always active, so both F=011 and F=111 compare
+correctly. F[2] still controls the main CLA's arithmetic and logic inputs.
+The main adder's carry is unsuitable for SLT when F[2]=0 because that
+adder is adding rather than subtracting.
+
+For example, with A=3 and B=5, the five-bit sum is 00011 + 01010 + 00001
+= 01110. Carry is 0, so Less=1. With A=5 and B=3, it is 00101 + 01100
++ 00001 = 10010. Carry is 1, so Less=0. The low four result bits alone
+cannot determine unsigned less-than; the extra carry bit is essential.
 
 `C_out` is the adder carry out. During subtraction it is 1 for no borrow.
 Unsigned `Overflow` reports carry during addition and borrow during
@@ -158,7 +173,9 @@ The 32-bit testbench checks 17,627 cases: 27 hand-calculated examples, all eight
 control codes for 144 boundary operand pairs, 64 carry/borrow cases, and
 all eight controls for 2,048 random pairs. It checks Y, carry, overflow,
 and zero on every case. Its unsigned reference model checks
-addition against the width's maximum and subtraction against A<B.
+addition against the width's maximum and subtraction against A<B. The
+testbench intentionally retains a direct less-than comparison as an
+independent reference for the subtract-and-borrow implementation.
 
 The board testbench first shows seventeen literal examples in the waveform,
 including unsigned carry/borrow and comparison with either F[2] value, then checks all 2,048 combinations of two four-bit operands and

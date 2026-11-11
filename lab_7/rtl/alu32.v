@@ -10,6 +10,8 @@ module alu32 (
     output Zero
 );
     wire [31:0] BB, S;
+    wire [32:0] difference;
+    wire Less;
     wire [8:0] C;
     wire [7:0] PG, GG;
 
@@ -31,10 +33,15 @@ module alu32 (
     // Unsigned addition: carry. Unsigned subtraction: borrow.
     assign Overflow = F[2] ? ~C_out : C_out;
 
+    // Always subtract for SLT, independently of the main adder's F[2].
+    // Keep the carry bit: carry=0 means a borrow, so A is less than B.
+    assign difference = {1'b0, A} + {1'b0, ~B} + 33'd1;
+    assign Less = ~difference[32];
+
     assign Y = (F[1:0] == 2'b00) ? (A & BB) :
                (F[1:0] == 2'b01) ? (A | BB) :
                (F[1:0] == 2'b10) ? S :
-               {31'b0, (A < B)}; // Unsigned SLT for both F=011 and F=111.
+               {31'b0, Less}; // Unsigned SLT for both F=011 and F=111.
 
     assign Zero = (Y == 32'b0);
 endmodule
