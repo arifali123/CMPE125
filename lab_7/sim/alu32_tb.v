@@ -38,21 +38,25 @@ module alu32_tb;
         input [31:0] a, b;
         input [2:0] f;
         reg [32:0] unsigned_sum;
-        reg [31:0] expected_y;
+        reg [31:0] expected_y, compare_operand;
         reg expected_overflow;
         begin
-            if (f[2] || f[1:0] == 2'b11) begin
+            compare_operand = f[2] ? ~b : b;
+            if (f == 3'b111) begin
+                unsigned_sum = {1'b0, a} + {1'b0, b} + 33'd1;
+            end else if (f[2] || f[1:0] == 2'b11) begin
                 unsigned_sum = {1'b0, a} + {1'b0, ~b} + 33'd1;
             end else begin
                 unsigned_sum = {1'b0, a} + {1'b0, b};
             end
-            expected_overflow = (f[2] || f[1:0] == 2'b11) ? (a < b) : (unsigned_sum > 33'h0ffffffff);
+            expected_overflow = (f == 3'b111) ? (a < compare_operand) :
+                                ((f[2] || f[1:0] == 2'b11) ? (a < b) : (unsigned_sum > 33'h0ffffffff));
             case (f[1:0])
                 2'b00: expected_y = f[2] ? (a & ~b) : (a & b);
                 2'b01: expected_y = f[2] ? (a | ~b) : (a | b);
                 2'b10: expected_y = unsigned_sum[31:0];
-                // Independent unsigned reference for both SLT codes.
-                2'b11: expected_y = (a < b) ? 32'd1 : 32'd0;
+                // Independent unsigned comparison against BB, not the CLA sum.
+                2'b11: expected_y = (a < compare_operand) ? 32'd1 : 32'd0;
             endcase
             check(a, b, f, expected_y, unsigned_sum[32], expected_overflow);
         end
@@ -84,13 +88,13 @@ module alu32_tb;
         check(32'h80000000, 32'h00000001, 3'b110, 32'h7fffffff, 1, 0);
         check(32'h7fffffff, 32'hffffffff, 3'b110, 32'h80000000, 0, 1);
         check(32'h00000003, 32'h00000005, 3'b111, 32'h00000001, 0, 1);
-        check(32'h00000005, 32'h00000003, 3'b111, 32'h00000000, 1, 0);
+        check(32'h00000005, 32'h00000003, 3'b111, 32'h00000001, 0, 1);
         // Unsigned SLT, including inputs with different top bits.
         check(32'h80000000, 32'h7fffffff, 3'b111, 32'h00000000, 1, 0);
-        check(32'h7fffffff, 32'h80000000, 3'b111, 32'h00000001, 0, 1);
-        check(32'h00000000, 32'hffffffff, 3'b111, 32'h00000001, 0, 1);
+        check(32'h7fffffff, 32'h80000000, 3'b111, 32'h00000000, 1, 0);
+        check(32'h00000000, 32'hffffffff, 3'b111, 32'h00000000, 1, 0);
         check(32'hffffffff, 32'h00000000, 3'b111, 32'h00000000, 1, 0);
-        check(32'h00000005, 32'h00000005, 3'b111, 32'h00000000, 1, 0);
+        check(32'h00000005, 32'h00000005, 3'b111, 32'h00000001, 0, 1);
         check(32'h00000005, 32'h00000003, 3'b100, 32'h00000004, 1, 0);
         check(32'h00000005, 32'h00000003, 3'b101, 32'hfffffffd, 1, 0);
         check(32'h80000000, 32'h00000000, 3'b011, 32'h00000000, 1, 0);

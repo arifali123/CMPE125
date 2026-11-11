@@ -9,21 +9,24 @@ module alu4 (
     output Overflow,
     output Zero
 );
-    wire [3:0] BB, S;
-    wire Less, Subtract;
+    wire [3:0] BB, adder_B, S;
+    wire Less, Subtract, SLT;
     wire PG, GG;
 
-    // SLT needs A - B for either F[2] value; use the same CLA as arithmetic.
-    assign Subtract = F[2] | (F[1] & F[0]);
-    assign BB = Subtract ? ~B : B;
+    // F[2] selects the operand BB for logic and unsigned comparison.
+    assign BB = F[2] ? ~B : B;
+    assign SLT = F[1] & F[0];
+    // For SLT, the same CLA subtracts BB: A + ~BB + 1.
+    assign adder_B = SLT ? ~BB : BB;
+    assign Subtract = F[2] | SLT;
 
-    CLA4 adder (.A(A), .B(BB), .Ci(Subtract), .S(S),
+    CLA4 adder (.A(A), .B(adder_B), .Ci(Subtract), .S(S),
                 .Co(C_out), .PG(PG), .GG(GG));
 
     // Unsigned addition: carry. Unsigned subtraction: borrow.
     assign Overflow = Subtract ? ~C_out : C_out;
 
-    // SLT selects subtraction: no carry means a borrow, so A is less than B.
+    // During SLT, no carry means A is less than the selected operand BB.
     assign Less = ~C_out;
 
     assign Y = (F[1:0] == 2'b00) ? (A & BB) :

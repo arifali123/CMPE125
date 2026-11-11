@@ -31,13 +31,14 @@ would define the same CLA modules twice.
 The written handout requires a 32-bit ALU simulation, and the instructor also
 requires a four-bit Basys 3 demonstration. Both are included. The accompanying
 `Alu32.pdf` provides the four-bit ALU and board wrapper. Its testbench has an
-`Unsigned` port absent from its design. The confirmed board requirement is
-unsigned A<B for both F=011 and F=111. Both codes force the original CLA
-into subtraction mode, and SLT uses its inverted carry (borrow). There is
-no separate comparison adder/subtractor and no less-than or shift operator
-in the synthesizable ALUs. Operands are unsigned: 0 through 15 on the board
-and 0 through 4,294,967,295 in the 32-bit core. No extra `Unsigned` input
-is needed.
+`Unsigned` port absent from its design. The latest BB-based comparison
+interpretation is unsigned A<BB, where BB is B for F[2]=0 and ~B for
+F[2]=1. Both SLT codes use the original CLA to subtract BB and use its
+inverted carry as borrow. This supersedes the earlier interpretation that
+both SLT codes compared original A and B. There is no separate comparison
+adder/subtractor and no less-than or shift operator in the design RTL.
+Complements are taken at the operand width: four bits on the board and
+32 bits in the simulation core. No extra `Unsigned` input is needed.
 
 ## Program and demonstrate the Basys 3
 
@@ -76,12 +77,12 @@ shown above. A flag of 1 means that LED should light.
 | Zero: 5 - 5 | 0101 | 0101 | 110 | 0000 | 1 | 0 | 1 |
 | SLT F2=0: 3 < 5 | 0011 | 0101 | 011 | 0001 | 0 | 1 | 0 |
 | SLT F2=0: 5 < 3 (false) | 0101 | 0011 | 011 | 0000 | 1 | 0 | 1 |
-| SLT: 3 < 5 | 0011 | 0101 | 111 | 0001 | 0 | 1 | 0 |
-| SLT: 7 < 8 | 0111 | 1000 | 111 | 0001 | 0 | 1 | 0 |
-| SLT: 8 < 7 (false) | 1000 | 0111 | 111 | 0000 | 1 | 0 | 1 |
-| SLT: 0 < 15 | 0000 | 1111 | 111 | 0001 | 0 | 1 | 0 |
-| SLT: 15 < 0 (false) | 1111 | 0000 | 111 | 0000 | 1 | 0 | 1 |
-| SLT: 5 < 5 (false) | 0101 | 0101 | 111 | 0000 | 1 | 0 | 1 |
+| SLT: 3 < ~5 (10) | 0011 | 0101 | 111 | 0001 | 0 | 1 | 0 |
+| SLT: 7 < ~8 (7) | 0111 | 1000 | 111 | 0000 | 1 | 0 | 1 |
+| SLT: 8 < ~7 (8) | 1000 | 0111 | 111 | 0000 | 1 | 0 | 1 |
+| SLT: 0 < ~15 (0) | 0000 | 1111 | 111 | 0000 | 1 | 0 | 1 |
+| SLT: 15 < ~0 (15) | 1111 | 0000 | 111 | 0000 | 1 | 0 | 1 |
+| SLT: 5 < ~5 (10) | 0101 | 0101 | 111 | 0001 | 0 | 1 | 0 |
 | Add: 7 + 1 | 0111 | 0001 | 010 | 1000 | 0 | 0 | 0 |
 | Carry: 15 + 1 | 1111 | 0001 | 010 | 0000 | 1 | 1 | 1 |
 | Borrow: 2 - 5 | 0010 | 0101 | 110 | 1101 | 0 | 1 | 0 |
@@ -110,58 +111,61 @@ For four-bit unsigned subtraction, A=1000 (8), B=1011 (11), F=110:
 The result wraps to 1101 (13); carry=0, borrow/Overflow=1, Zero=0.
 Turn on only SW3, SW4, SW5, SW7, SW9, and SW10. SW8 must be down.
 LED0, LED2, LED3, and LED9 should light. No button press is required.
-With the same operands and either F=011 or F=111, the output is comparison
-result 0001, not the subtraction result. LED0 and LED9 should light for
-both SLT codes. In particular, F=011 must not compare 8 against ~11 (4). The self-checking board testbench checks the
-reported subtraction, its reverse, and both comparison codes first.
+With A=1000 and B=1011, F=011 compares 8<11 and gives Y=0001;
+LED0 and LED9 light. Turn SW10 on for F=111: BB becomes 0100 (4),
+so 8<4 is false and Y=0000; LED8 and LED10 light. The comparison is
+against BB, not invariably original B. This intentionally differs from
+the previously reported expectation of Y=1 for both modes.
+The board testbench checks both results first.
 
 ## Controls and outputs
 
-The adder control is `Subtract = F[2] | (F[1] & F[0])`. Thus explicit
-subtraction and either SLT code select `BB = ~B` with carry-in 1.
-Otherwise BB=B and carry-in is 0. The internal sum is
-`S = A + BB + Subtract`. `F[1:0]` selects the output:
+F[2] alone selects BB: `BB = F[2] ? ~B : B`. The low two control bits
+select logic, arithmetic, or comparison. For SLT, the adder input is ~BB
+and carry-in is 1, making the original CLA calculate A-BB.
 
 | F | Y |
 |---|---|
 | 000 | A AND B |
 | 001 | A OR B |
 | 010 | A + B |
-| 011 | Unsigned SLT: 1 if A < B, otherwise 0 |
+| 011 | Unsigned A < B: 1 if true, otherwise 0 |
 | 100 | A AND ~B |
 | 101 | A OR ~B |
 | 110 | A - B |
-| 111 | Unsigned SLT: 1 if A < B, otherwise 0 |
+| 111 | Unsigned A < ~B: 1 if true, otherwise 0 |
 
-For either SLT code, the original CLA computes A + ~B + 1. Its carry-out
-is 0 when A<B and 1 when A>=B, so SLT is its inverted carry:
+The implementation keeps the selected operand distinct from the CLA input:
 
 ```verilog
-assign Subtract = F[2] | (F[1] & F[0]);
-assign BB = Subtract ? ~B : B;
-// CLA carry-in is Subtract.
+assign BB = F[2] ? ~B : B;
+assign SLT = F[1] & F[0];
+assign adder_B = SLT ? ~BB : BB;
+assign Subtract = F[2] | SLT;
+// CLA inputs: A, adder_B, carry-in=Subtract.
 assign Less = ~C_out;
 ```
 
-The 32-bit core sets C[0]=Subtract and takes carry-out from C[8].
-No separate subtraction expression or built-in comparison is needed.
-The group-propagate adjustment from the earlier implementation is no longer
-needed because the CLA actually subtracts for both comparison codes.
+For arithmetic and logic modes, adder_B is BB and the original operations
+are unchanged. During SLT, A + ~BB + 1 subtracts BB. Carry=0 means borrow,
+so Less=1. Carry=1 means no borrow, so Less=0. The CLA is shared; no
+separate subtraction expression or built-in comparison is needed.
+The 32-bit core uses adder_B in all eight four-bit CLA blocks and obtains
+the final carry from C[8].
 
 Y zero-extends Less as `{3'b000, Less}` on the board or `{31'b0, Less}`
-in the 32-bit core. True gives 1; false or equal gives 0. F=010 still
-selects addition, F=110 still selects subtraction, and the logical
-operations are unchanged.
+in the 32-bit core. Equal A and the selected BB give 0. A and original B
+being equal does not imply false for F=111, since that code compares with ~B.
+For example, four-bit A=5, B=5, F=111 compares 5<10 and gives 1.
 
-`C_out` is the actual CLA carry-out. Unsigned `Overflow` is
-`Subtract ? ~C_out : C_out`: carry during addition, borrow during
-subtraction or SLT. An XOR gate with inputs Subtract and C_out implements
-this flag. Both SLT codes give identical Y, Carry, Overflow, and Zero for
-the same operands. Zero always tests the selected Y, not the internal sum.
-
-The earlier expression A - ~BB, with BB controlled only by F[2], compared
-A with ~B for F=011. That was the cause of the confirmed 8<11 failure in
-that mode. It is superseded by this shared-CLA A-B comparison.
+`C_out` is the actual CLA carry. Unsigned `Overflow` is
+`Subtract ? ~C_out : C_out`: addition carry for addition, borrow for
+subtraction and comparison. In SLT modes it describes A-BB, so it equals
+Less. Zero tests the selected Y. With A=8 and B=11, changing F=011 to
+F=111 changes both the selected operand and the comparison result.
+Note that ~B is width-dependent: four-bit ~11 is 4, while 32-bit ~11 is
+4,294,967,284. Do not expect the same F=111 result at different widths
+when a small B is complemented.
 
 ## Batch verification
 
@@ -180,7 +184,7 @@ all eight controls for 2,048 random pairs. It checks Y, carry, overflow,
 and zero on every case. Its unsigned reference model checks
 addition against the width's maximum and subtraction against A<B. The
 testbench intentionally retains a direct less-than comparison as an
-independent reference against original B for both F=011 and F=111.
+independent reference against B for F=011 and width-limited ~B for F=111.
 
 The board testbench first shows twenty-three literal examples in the waveform,
 including unsigned carry/borrow and comparison with either F[2] value, then checks all 2,048 combinations of two four-bit operands and

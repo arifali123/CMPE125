@@ -102,7 +102,8 @@ all 2,048 switch combinations. The 32-bit ALU and its `alu32_tb` remain in the
 same project for the written lab's simulation requirement. Both widths reuse
 the Lab 4 CLA and support logic, addition, subtraction, and unsigned SLT
 using the original CLA's subtraction carry (no separate subtractor).
-Both F=011 and F=111 force A-B through the CLA and compare unsigned A<B.
+SLT compares A with the F2-selected BB: F=011 compares A<B, and F=111
+compares A<~B. The same CLA subtracts BB and supplies the comparison borrow.
 Overflow reports addition carry or subtraction borrow.
 See [Lab 7 notes](lab_7/notes/README.md) for control definitions and batch checks.
 
