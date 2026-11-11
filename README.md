@@ -101,7 +101,7 @@ Basys 3 through Hardware Manager. The default testbench `basys_alu_tb` checks
 all 2,048 switch combinations. The 32-bit ALU and its `alu32_tb` remain in the
 same project for the written lab's simulation requirement. Both widths reuse
 the Lab 4 CLA and support logic, addition, subtraction, and unsigned SLT
-for both F=011 and F=111 using the borrow from A + ~B + 1.
+using borrow from A - ~BB: F=111 compares A<B; F=011 compares A<~B.
 Overflow reports addition carry or subtraction borrow.
 See [Lab 7 notes](lab_7/notes/README.md) for control definitions and batch checks.
 

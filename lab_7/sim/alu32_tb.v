@@ -38,6 +38,7 @@ module alu32_tb;
         input [31:0] a, b;
         input [2:0] f;
         reg [32:0] unsigned_sum;
+        reg [31:0] compare_operand;
         reg [31:0] expected_y;
         reg expected_overflow;
         begin
@@ -47,12 +48,13 @@ module alu32_tb;
                 unsigned_sum = {1'b0, a} + {1'b0, b};
             end
             expected_overflow = f[2] ? (a < b) : (unsigned_sum > 33'h0ffffffff);
+            compare_operand = f[2] ? b : ~b;
             case (f[1:0])
                 2'b00: expected_y = f[2] ? (a & ~b) : (a & b);
                 2'b01: expected_y = f[2] ? (a | ~b) : (a | b);
                 2'b10: expected_y = unsigned_sum[31:0];
-                // Comparison must not depend on F[2] or the adder's sum.
-                2'b11: expected_y = (a < b) ? 32'd1 : 32'd0;
+                // A - ~BB borrows exactly when A is less than ~BB.
+                2'b11: expected_y = (a < compare_operand) ? 32'd1 : 32'd0;
             endcase
             check(a, b, f, expected_y, unsigned_sum[32], expected_overflow);
         end
@@ -88,12 +90,12 @@ module alu32_tb;
         check(32'h00000005, 32'h00000005, 3'b111, 32'h00000000, 1, 0);
         check(32'h00000005, 32'h00000003, 3'b100, 32'h00000004, 1, 0);
         check(32'h00000005, 32'h00000003, 3'b101, 32'hfffffffd, 1, 0);
-        check(32'h80000000, 32'h00000000, 3'b011, 32'h00000000, 0, 0);
-        check(32'h7fffffff, 32'h00000001, 3'b011, 32'h00000000, 0, 0);
+        check(32'h80000000, 32'h00000000, 3'b011, 32'h00000001, 0, 0);
+        check(32'h7fffffff, 32'h00000001, 3'b011, 32'h00000001, 0, 0);
         check(32'h80000000, 32'h80000000, 3'b011, 32'h00000000, 1, 1);
         check(32'h00000003, 32'h00000005, 3'b011, 32'h00000001, 0, 0);
-        check(32'h00000005, 32'h00000003, 3'b011, 32'h00000000, 0, 0);
-        check(32'h00000000, 32'hffffffff, 3'b011, 32'h00000001, 0, 0);
+        check(32'h00000005, 32'h00000003, 3'b011, 32'h00000001, 0, 0);
+        check(32'h00000000, 32'hffffffff, 3'b011, 32'h00000000, 0, 0);
         check(32'hffffffff, 32'h00000000, 3'b011, 32'h00000000, 0, 0);
 
         corners[0] = 32'h00000000;

@@ -22,10 +22,9 @@ module alu4 (
     // Unsigned addition: carry. Unsigned subtraction: borrow.
     assign Overflow = F[2] ? ~C_out : C_out;
 
-    // Always subtract for SLT, independently of the main adder's F[2].
-    // Keep the carry bit: carry=0 means a borrow, so A is less than B.
-    assign difference = {1'b0, A} + {1'b0, ~B} + 5'd1;
-    assign Less = ~difference[4];
+    // TA's comparison: A - ~BB. The extra bit is 1 when subtraction borrows.
+    assign difference = {1'b0, A} - {1'b0, ~BB};
+    assign Less = difference[4];
 
     assign Y = (F[1:0] == 2'b00) ? (A & BB) :
                (F[1:0] == 2'b01) ? (A | BB) :
