@@ -4,7 +4,6 @@ module basys_alu_tb;
     reg [10:0] sw;
     wire [10:0] led;
     reg [3:0] expected_y;
-    reg [3:0] compare_operand;
     reg expected_c, expected_overflow, expected_zero;
     reg [10:0] expected_led;
     integer a, b, f, sum;
@@ -39,16 +38,25 @@ module basys_alu_tb;
         errors = 0;
         tests = 0;
 
+        // Reported board case: 8 - 11 wraps to 13 with borrow, not zero.
+        check_example(4'b1000, 4'b1011, 3'b110, 4'b1101, 0, 1);
+        check_example(4'b1011, 4'b1000, 3'b110, 4'b0011, 1, 0);
+        check_example(4'b1000, 4'b1011, 3'b111, 4'b0001, 0, 1);
+        // Reported SLT failure: 011 must compare original A and B, just like 111.
+        check_example(4'b1000, 4'b1011, 3'b011, 4'b0001, 0, 1);
+        check_example(4'b1011, 4'b1000, 3'b011, 4'b0000, 1, 0);
+        check_example(4'b1000, 4'b0111, 3'b011, 4'b0000, 1, 0);
+
         check_example(4'h3, 4'h5, 3'b111, 4'h1, 0, 1); // 3 < 5: true
         check_example(4'h5, 4'h3, 3'b111, 4'h0, 1, 0); // 5 < 3: false
         check_example(4'h7, 4'h8, 3'b111, 4'h1, 0, 1); // 7 < 8: true
         check_example(4'h8, 4'h7, 3'b111, 4'h0, 1, 0); // 8 < 7: false
-        check_example(4'h7, 4'h1, 3'b011, 4'h1, 0, 0); // Compare A against ~B: 7 < 14
-        check_example(4'h8, 4'h8, 3'b011, 4'h0, 1, 1); // Compare A against ~B: 8 < 7
-        check_example(4'h3, 4'h5, 3'b011, 4'h1, 0, 0); // Compare A against ~B: 3 < 10
-        check_example(4'h5, 4'h3, 3'b011, 4'h1, 0, 0); // Compare A against ~B: 5 < 12
-        check_example(4'h0, 4'hf, 3'b011, 4'h0, 0, 0); // Compare A against ~B: 0 < 0
-        check_example(4'hf, 4'h0, 3'b011, 4'h0, 0, 0); // Compare A against ~B: 15 < 15
+        check_example(4'h7, 4'h1, 3'b011, 4'h0, 1, 0); // Unsigned A < B
+        check_example(4'h8, 4'h8, 3'b011, 4'h0, 1, 0); // Unsigned A < B
+        check_example(4'h3, 4'h5, 3'b011, 4'h1, 0, 1); // Unsigned A < B
+        check_example(4'h5, 4'h3, 3'b011, 4'h0, 1, 0); // Unsigned A < B
+        check_example(4'h0, 4'hf, 3'b011, 4'h1, 0, 1); // Unsigned A < B
+        check_example(4'hf, 4'h0, 3'b011, 4'h0, 1, 0); // Unsigned A < B
         check_example(4'h5, 4'h2, 3'b110, 4'h3, 1, 0); // Subtraction unchanged
         check_example(4'h7, 4'h1, 3'b010, 4'h8, 0, 0); // Addition unchanged
 
@@ -63,20 +71,19 @@ module basys_alu_tb;
             for (a = 0; a < 16; a = a + 1) begin
                 for (b = 0; b < 16; b = b + 1) begin
                     sw = {f[2:0], b[3:0], a[3:0]};
-                    if (f[2]) begin
+                    if (f[2] || f[1:0] == 2'b11) begin
                         sum = a + (15 - b) + 1;
                     end else begin
                         sum = a + b;
                     end
                     expected_c = (sum >= 16);
-                    expected_overflow = f[2] ? (a < b) : (sum > 15);
-                    compare_operand = f[2] ? b[3:0] : ~b[3:0];
+                    expected_overflow = (f[2] || f[1:0] == 2'b11) ? (a < b) : (sum > 15);
                     case (f[1:0])
                         2'b00: expected_y = f[2] ? (a & ~b) : (a & b);
                         2'b01: expected_y = f[2] ? (a | ~b) : (a | b);
                         2'b10: expected_y = sum[3:0];
-                        // Independent comparison against ~BB at the operand width.
-                        2'b11: expected_y = (a < compare_operand) ? 4'd1 : 4'd0;
+                        // Both SLT codes compare original unsigned operands.
+                        2'b11: expected_y = (a < b) ? 4'd1 : 4'd0;
                     endcase
                     expected_zero = (expected_y == 0);
                     expected_led = {expected_c, expected_overflow, expected_zero,

@@ -10,14 +10,14 @@ module alu32 (
     output Zero
 );
     wire [31:0] BB, S;
-    wire [32:0] difference;
-    wire Less;
+    wire Less, Subtract;
     wire [8:0] C;
     wire [7:0] PG, GG;
 
-    // F[2] selects B or its complement, and supplies the carry in.
-    assign BB = F[2] ? ~B : B;
-    assign C[0] = F[2];
+    // SLT needs A - B for either F[2] value; reuse the arithmetic CLA chain.
+    assign Subtract = F[2] | (F[1] & F[0]);
+    assign BB = Subtract ? ~B : B;
+    assign C[0] = Subtract;
 
     // Eight Lab 4 adders, connected from the low bits to the high bits.
     CLA4 adder0 (.A(A[3:0]),   .B(BB[3:0]),   .Ci(C[0]), .S(S[3:0]),   .Co(C[1]), .PG(PG[0]), .GG(GG[0]));
@@ -31,11 +31,10 @@ module alu32 (
 
     assign C_out = C[8];
     // Unsigned addition: carry. Unsigned subtraction: borrow.
-    assign Overflow = F[2] ? ~C_out : C_out;
+    assign Overflow = Subtract ? ~C_out : C_out;
 
-    // TA's comparison: A - ~BB. The extra bit is 1 when subtraction borrows.
-    assign difference = {1'b0, A} - {1'b0, ~BB};
-    assign Less = difference[32];
+    // SLT selects subtraction: no carry means a borrow, so A is less than B.
+    assign Less = ~C_out;
 
     assign Y = (F[1:0] == 2'b00) ? (A & BB) :
                (F[1:0] == 2'b01) ? (A | BB) :
