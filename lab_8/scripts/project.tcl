@@ -16,13 +16,22 @@ if {[llength [get_projects -quiet]] > 0} {
 
 set_property target_language Verilog [current_project]
 set_property target_simulator XSim [current_project]
-foreach {fileset folder pattern} {sources_1 rtl *.v sim_1 sim *.v} {
-    set old_files [get_files -quiet -of_objects [get_filesets $fileset]]
-    set source_files [glob -directory [file join $lab_dir $folder] $pattern]
+# Save plain path strings before removing project objects. Vivado object
+# collections can become invalid when one of their members is removed.
+foreach {fileset folder pattern} {sources_1 rtl *.v sim_1 sim *.v constrs_1 constraints *.xdc} {
+    set old_files {}
+    foreach source_object [get_files -quiet -of_objects [get_filesets $fileset]] {
+        lappend old_files [get_property NAME $source_object]
+    }
+    set source_files [glob -nocomplain -directory [file join $lab_dir $folder] $pattern]
+    set removed_files {}
     foreach old_file $old_files {
         if {[lsearch -exact $source_files $old_file] < 0} {
-            remove_files -fileset $fileset $old_file
+            lappend removed_files $old_file
         }
+    }
+    if {[llength $removed_files]} {
+        remove_files -fileset $fileset $removed_files
     }
     foreach source_file $source_files {
         if {[lsearch -exact $old_files $source_file] < 0} {
@@ -32,10 +41,17 @@ foreach {fileset folder pattern} {sources_1 rtl *.v sim_1 sim *.v} {
 }
 set_property top ram_single [get_filesets sources_1]
 set sim_fileset [get_filesets sim_1]
-# Set the initial selection once, then preserve the user's enabled file.
-if {[get_property top $sim_fileset] ne "lab8_tb"} {
-    foreach testbench [get_files -of_objects $sim_fileset] {
-        set_property is_enabled [expr {[file tail $testbench] eq "tb_ram_single.v"}] $testbench
+# Preserve a valid selection and recover if the removed demo was selected.
+set testbenches [glob -directory [file join $lab_dir sim] *.v]
+set enabled_count 0
+foreach testbench $testbenches {
+    if {[get_property is_enabled [get_files $testbench]]} {
+        incr enabled_count
+    }
+}
+if {[get_property top $sim_fileset] ne "lab8_tb" || $enabled_count != 1} {
+    foreach testbench $testbenches {
+        set_property is_enabled [expr {[file tail $testbench] eq "tb_ram_single.v"}] [get_files $testbench]
     }
 }
 set_property top lab8_tb $sim_fileset
