@@ -16,7 +16,7 @@ if {[llength [get_projects -quiet]] > 0} {
 
 set_property target_language Verilog [current_project]
 set_property target_simulator XSim [current_project]
-foreach {fileset folder pattern} {sources_1 rtl *.v sim_1 sim *.v constrs_1 constraints *.xdc} {
+foreach {fileset folder pattern} {sources_1 rtl *.v sim_1 sim *.v} {
     set old_files [get_files -quiet -of_objects [get_filesets $fileset]]
     set source_files [glob -directory [file join $lab_dir $folder] $pattern]
     foreach old_file $old_files {
@@ -30,7 +30,7 @@ foreach {fileset folder pattern} {sources_1 rtl *.v sim_1 sim *.v constrs_1 cons
         }
     }
 }
-set_property top basys3_ram_demo [get_filesets sources_1]
+set_property top ram_single [get_filesets sources_1]
 set sim_fileset [get_filesets sim_1]
 # Set the initial selection once, then preserve the user's enabled file.
 if {[get_property top $sim_fileset] ne "lab8_tb"} {

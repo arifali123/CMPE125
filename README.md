@@ -32,7 +32,7 @@ Board pin reference: [Digilent Basys 3 Master XDC](https://github.com/Digilent/d
 | 5 | `CLA4` | `self_check_tb`, `test_vector_tb` |
 | 6 | `vending_machine` | `vending_machine_tb` |
 | 7 | `basys_alu` (4-bit board), `alu32` | `basys_alu_tb`, `alu32_tb` |
-| 8 | `basys3_ram_demo` (three 128×8 RAMs) | `tb_ram_single.v`, `tb_ram_dual_two_clocks.v`, `tb_ram_true_dual_port.v`, `tb_basys3_ram_demo.v` |
+| 8 | `ram_single`, `ram_dual_two_clocks`, `ram_true_dual_port` | `tb_ram_single.v`, `tb_ram_dual_two_clocks.v`, `tb_ram_true_dual_port.v` |
 
 ### Lab 3: seven-segment decoder
 
@@ -115,10 +115,9 @@ See [Lab 7 notes](lab_7/notes/README.md) for control definitions and batch check
 ```
 
 In **Simulation Sources**, enable the testbench file you want and disable the
-other three before running **Behavioral Simulation**.
-The Basys 3 demo uses SW6:0 for the address, SW14:7 for data, and SW15 to enable
-writes. Follow the [Lab 8 demo walkthrough](lab_8/notes/README.md) for
-programming, control mappings, and batch verification.
+other two before running **Behavioral Simulation**. The three designs cover
+single-port RAM, dual-port RAM with two clocks, and true dual-port RAM with
+one clock. See [Lab 8 notes](lab_8/notes/README.md) for simulation and report details.
 
 ## Homework 4: sequential logic and FSMs
 
