@@ -5,11 +5,12 @@ module lab8_tb;
     reg [7:0] a1=0, a2=0;
     reg [7:0] d1=0, d2=0;
     wire [7:0] q1, q2;
+    wire collision;
     integer address_index;
     integer errors=0;
     always #5 clk=~clk;
     ram_true_dual_port dut (.clk(clk), .we1(we1), .we2(we2),
-        .a1(a1),.a2(a2),.d1(d1),.d2(d2),.q1(q1),.q2(q2));
+        .a1(a1),.a2(a2),.d1(d1),.d2(d2),.q1(q1),.q2(q2),.collision(collision));
     task check_both;
         input [7:0] expected1, expected2;
         begin
@@ -56,6 +57,34 @@ module lab8_tb;
             @(posedge clk);
             check_both(address_index[7:0] ^ 8'hA5, address_index[7:0]);
         end
+        // Same-address writes: A wins, and both outputs read the old byte.
+        @(negedge clk); a1=8'd255; a2=8'd255;
+        d1=8'h12; d2=8'h34; we1=1; we2=1;
+        #1;
+        if (collision !== 1'b1) $fatal(1, "Missing write collision indication.");
+        @(posedge clk);
+        check_both(8'hDA, 8'hDA); // Previous upper-half pattern at 255.
+        @(negedge clk); we1=0; we2=0;
+        @(posedge clk); check_both(8'h12, 8'h12);
+        if (collision !== 1'b0) $fatal(1, "Read/read flagged as a collision.");
+
+        // B writes while A reads the same address.
+        @(negedge clk); d2=8'h56; we2=1;
+        @(posedge clk); check_both(8'h12, 8'h12);
+        @(negedge clk); we2=0;
+        @(posedge clk); check_both(8'h56, 8'h56);
+
+        // A writes while B reads the same address.
+        @(negedge clk); d1=8'h78; we1=1;
+        @(posedge clk); check_both(8'h56, 8'h56);
+        @(negedge clk); we1=0;
+        @(posedge clk); check_both(8'h78, 8'h78);
+
+        // Equal-data concurrent writes also resolve through A.
+        @(negedge clk); d1=8'h9A; d2=8'h9A; we1=1; we2=1;
+        @(posedge clk); check_both(8'h78, 8'h78);
+        @(negedge clk); we1=0; we2=0;
+        @(posedge clk); check_both(8'h9A, 8'h9A);
         if(errors == 0) $display("ALL TRUE DUAL-PORT TESTS PASSED");
         else $fatal(1, "TRUE DUAL-PORT ERRORS: %0d",errors);
         $finish;

@@ -13,13 +13,17 @@ The instructor requested eight-bit addresses, so each RAM has 256 locations.
 ## Design 2: Two-Clock Dual-Port RAM
 - Each port has its own clock, address, data input/output, and write enable.
 - Port A and Port B access the same storage array.
-- Both reads and writes are synchronous in this implementation.
+- Explain the request/ready/valid interface for port B and its additional latency.
+- Both memory accesses execute on clk1 after synchronizing port B's captured request.
+- Explain A-priority write rejection and the returned collision2 flag.
 - Testbench drives independent 10 ns and 14 ns clock periods, checks data written by each port can be read by the other.
 - Include source code and actual waveform screenshot.
 
 ## Design 3: True Dual-Port RAM (One Clock)
 - Both ports have separate address, data, and write enable but share one clock.
 - Both ports can write to different addresses on the same clock edge.
+- Same-address writes give A priority and assert collision. Both outputs read the old value.
+- Include both directions of read/write overlap and the rejected B write in the waveforms.
 - The testbench confirms ports can exchange information through shared memory.
 - Include source code and actual waveform screenshot.
 
