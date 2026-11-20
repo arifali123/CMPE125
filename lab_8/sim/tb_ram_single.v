@@ -3,9 +3,10 @@
 module lab8_tb;
     reg clk = 0;
     reg we = 0;
-    reg [6:0] a = 0;
+    reg [7:0] a = 0;
     reg [7:0] d = 0;
     wire [7:0] q;
+    integer address_index;
     integer errors = 0;
     always #5 clk = ~clk;  // 10 ns period
     ram_single dut (.clk(clk), .we(we), .a(a), .d(d), .q(q));
@@ -22,17 +23,31 @@ module lab8_tb;
     endtask
     initial begin
         $display("Testing single-port RAM...");
-        @(negedge clk); a=7'd5; d=8'h2A; we=1;
+        @(negedge clk); a=8'd5; d=8'h2A; we=1;
         @(posedge clk); #1; we=0; check(8'h2A);
-        @(negedge clk); a=7'd127; d=8'hA5; we=1;
+        @(negedge clk); a=8'd127; d=8'hA5; we=1;
         @(posedge clk); #1; we=0; check(8'hA5);
-        a=7'd5; check(8'h2A);
+        a=8'd5; check(8'h2A);
         // A write disabled by WE must not change the stored value.
-        @(negedge clk); a=7'd5; d=8'hFF; we=0;
+        @(negedge clk); a=8'd5; d=8'hFF; we=0;
         @(posedge clk); #1; check(8'h2A);
         @(negedge clk); d=8'hD2; we=1;
         check(8'h2A); // The new byte is not visible before the write edge.
         @(posedge clk); #1; we=0; check(8'hD2);
+        // Fill every address, then verify all bytes after the complete fill.
+        // This catches upper-address truncation and aliasing.
+        for (address_index = 0; address_index < 256; address_index = address_index + 1) begin
+            @(negedge clk);
+            a = address_index[7:0];
+            d = address_index[7:0] ^ 8'hA5;
+            we = 1;
+            @(posedge clk); #1; we = 0;
+        end
+        for (address_index = 0; address_index < 256; address_index = address_index + 1) begin
+            @(negedge clk);
+            a = address_index[7:0];
+            check(address_index[7:0] ^ 8'hA5);
+        end
         if (errors == 0) $display("ALL SINGLE-PORT TESTS PASSED");
         else $fatal(1, "SINGLE-PORT ERRORS: %0d",errors);
         $finish;

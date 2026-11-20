@@ -7,7 +7,10 @@ Open the project from the repo root.
 ```
 
 The project contains the three RAM designs and their testbenches required by
-the Lab 8 handout. Each RAM stores 128 words of eight bits, or 128 bytes.
+the Lab 8 handout. Following the instructor's clarification, all addresses
+are eight bits and each RAM stores 256 words of eight bits, or 256 bytes.
+Addresses range from 0 to 255. The PDF's original example used 128 locations
+with seven-bit addresses.
 
 The project starts with `tb_ram_single.v` enabled. To switch, close the
 running simulation, then right-click the current file in **Simulation Sources**
@@ -18,7 +21,7 @@ All three testbench files use the simulation top `lab8_tb`.
 
 | Design | Testbench file | What it checks |
 |---|---|---|
-| `ram_single` | `tb_ram_single.v` | Asynchronous reads, rising-edge writes, addresses 5 and 127, and disabled writes |
+| `ram_single` | `tb_ram_single.v` | Asynchronous reads, rising-edge writes, disabled writes, and pattern readback at all 256 addresses |
 | `ram_dual_two_clocks` | `tb_ram_dual_two_clocks.v` | Each port writes, and the other port reads the same location, using independent 10 ns and 14 ns clocks |
 | `ram_true_dual_port` | `tb_ram_true_dual_port.v` | Both ports write different addresses on the same edge, then read each other's data, with clocked output hold and read-first checks |
 
@@ -31,6 +34,8 @@ A same-port write edge reads the previous value in the dual-port designs.
 Avoid concurrent access to a location while another port writes it.
 Simultaneous writes by both ports to the same address have undefined results.
 Unwritten locations have unspecified contents.
+All three testbenches check the upper address bit and distinct storage across
+the full address range, including addresses 0, 127, 128, and 255.
 
 Use **Zoom Fit** in the waveform window and check the Tcl Console for the
 `ALL ... TESTS PASSED` message. Expand the design instance to inspect the

@@ -1,12 +1,14 @@
 # Lab 8 Report Guide (fill with your own genuine Vivado results)
 
 ## Title and Objective
-Lab 8 — Dual-Port Memory Design. The goal is to build and test a 128x8 single-port RAM, a dual-port RAM with two separate clocks, and a true dual-port RAM with one shared clock.
+Lab 8 — Dual-Port Memory Design. The goal is to build and test a 256x8 single-port RAM, a dual-port RAM with two separate clocks, and a true dual-port RAM with one shared clock.
+
+The instructor requested eight-bit addresses, so each RAM has 256 locations.
 
 ## Design 1: Single-Port RAM
 - Explain that `assign q = mem[a]` is asynchronous reading (output responds to address changes without waiting for a clock).
 - Explain that `always @(posedge clk)` means writing only occurs on the rising edge: synchronous write.
-- Include relevant source code and simulation screenshot for writes/reads at addresses 5 and 127, and the disabled-write test.
+- Include relevant source code and simulation screenshot for writes/reads at addresses 0, 127, 128, and 255, the full-memory pattern readback, and the disabled-write test.
 
 ## Design 2: Two-Clock Dual-Port RAM
 - Each port has its own clock, address, data input/output, and write enable.
