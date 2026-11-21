@@ -200,3 +200,8 @@ four-bit board top and produces `build/board_utilization.txt` and
 timing requirement.
 Generated files are ignored by Git. Capture compilation and waveform
 screenshots in Vivado for the lab report required by the handout.
+
+## Report screenshots
+
+Ready-to-use waveform and source-code PNGs and suggested captions are in
+[screenshots](../screenshots/README.md).
